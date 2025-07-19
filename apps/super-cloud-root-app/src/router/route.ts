@@ -31,13 +31,29 @@ const routes: RouteRecordRaw[] = [
         ]
     },
     {
-        path: '/login',
-        name: 'login',
-        component: () => import('../layouts/Login.vue'),
-        meta: {
-            text: '登录'
-        }
+        path: '/fullscreen',
+        name: 'fullscreen',
+        component: () => import('../layouts/FullScreen.vue'),
+        children:[
+            {
+                path: '/login',
+                name: 'login',
+                component: () => import('../views/Login/Login.vue'),
+                meta: {
+                    text: '登录'
+                }
+            },
+            {
+                path:'/register',
+                name:'register',
+                component: () => import('../views/Register/Register.vue'),
+                meta: {
+                    text: '注册'
+                }
+            }
+        ]
     },
+   
 ]
 const rootNavBar: NavItem[] = routes[0].children?.map((item => {
     const newItem: NavItem = {

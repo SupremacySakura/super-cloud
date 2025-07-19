@@ -3,12 +3,8 @@
 
 <template>
     <div class="container">
-        imgPreview
+        upload
     </div>
 </template>
 
-<style lang="less" scoped>
-.container {
-    height: 100%;
-}
-</style>
+<style lang="less" scoped></style>

@@ -33,6 +33,7 @@ turbo/
 *.tsbuildinfo
 *.log.*
 **/cache/**
+*.cookie
 # 错误报告
 npm-debug.log*
 pnpm-debug.log*

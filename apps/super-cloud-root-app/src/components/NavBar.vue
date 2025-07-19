@@ -4,6 +4,7 @@ import { ref } from 'vue';
 import cloudSvg from '../assets/cloud.svg';
 import { rootNavBar } from '../router/route';
 import { useRoute, useRouter } from 'vue-router';
+import { postLogin } from '../services/apis/login';
 const route = useRoute();
 const router = useRouter();
 // 侧边栏
@@ -35,7 +36,7 @@ const handleToggleDrawer = () => {
 
         <div class="right-container">
             <section class="login">
-                <button class="primary-button">登录</button>
+                <button class="primary-button" @click="router.push('/login')">登录</button>
             </section>
         </div>
         <el-drawer v-model="drawerOpen" direction="ltr" :with-header="false">

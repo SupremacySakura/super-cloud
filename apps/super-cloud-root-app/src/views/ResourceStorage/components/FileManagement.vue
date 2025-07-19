@@ -3,7 +3,7 @@
 
 <template>
     <div class="container">
-        imgPreview
+        FileManagement
     </div>
 </template>
 
