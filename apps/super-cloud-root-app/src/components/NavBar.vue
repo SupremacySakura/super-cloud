@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import { Fold } from '@element-plus/icons-vue'
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import cloudSvg from '../assets/cloud.svg';
 import { rootNavBar } from '../router/route';
 import { useRoute, useRouter } from 'vue-router';
-import { postLogin } from '../services/apis/login';
+import { useUserStore } from '../stores/user';
+import { storeToRefs } from 'pinia';
+const { userInfo, sid } = storeToRefs(useUserStore())
 const route = useRoute();
 const router = useRouter();
 // 侧边栏
 const drawerOpen = ref(false);
+// 登录状态
+const isLogin = computed(() => {
+  return sid.value && userInfo.value;
+});
 /**
  * 切换侧边栏
  */
@@ -27,7 +33,7 @@ const handleToggleDrawer = () => {
             </section>
             <section class="title">
                 <h1>
-                    {{ '主页' }}
+                    {{rootNavBar.find(item => item.name === route.path.split('/')[1])?.text || 'Super Cloud' }}
                 </h1>
                 <cloudSvg style="fill: rgb(122, 160, 2494);width: 50px;height: 100%;"></cloudSvg>
             </section>
@@ -35,8 +41,13 @@ const handleToggleDrawer = () => {
 
 
         <div class="right-container">
-            <section class="login">
+            <section class="login" v-if="!isLogin">
                 <button class="primary-button" @click="router.push('/login')">登录</button>
+            </section>
+            <section class="user-info" v-else>
+                <img :src="userInfo?.avatar" alt="">
+                <span>{{ userInfo?.username }}</span>
+                <button class="primary-button">登出</button>
             </section>
         </div>
         <el-drawer v-model="drawerOpen" direction="ltr" :with-header="false">
@@ -98,6 +109,35 @@ const handleToggleDrawer = () => {
         display: flex;
         align-items: center;
         margin-right: 10px;
+
+        .login {
+            padding: 0 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 10px;
+            height: 100%;
+
+            img {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 1px solid rgba(0, 0, 0, 0.08);
+            }
+
+            span {
+                font-size: 14px;
+                color: #1d2129;
+                max-width: 120px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
     }
 }
 

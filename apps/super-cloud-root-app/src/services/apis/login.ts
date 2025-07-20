@@ -1,5 +1,5 @@
-import loginRequest from '../request'
-import type { ApiResponse, CommonResponseData,LoginResponseData } from '../../types/api'
+import { loginRequest } from '../request'
+import type { ApiResponse, CommonResponseData, LoginResponseData } from '../../types/api'
 import type { AxiosResponse } from 'axios'
 // 请求登录
 const postLogin = (username: string, password: string): Promise<AxiosResponse<ApiResponse<LoginResponseData>>> => {

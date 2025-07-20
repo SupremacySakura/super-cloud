@@ -1,6 +1,5 @@
 import Router from '@koa/router'
-import userRoutes from './user'
-
+import fileRoutes from './file'
 const router = new Router()
 
 router.get('/', (ctx) => {
@@ -8,6 +7,5 @@ router.get('/', (ctx) => {
 })
 
 // 合并其他模块路由
-router.use(userRoutes.routes(), userRoutes.allowedMethods())
-
+router.use(fileRoutes.routes(), fileRoutes.allowedMethods())
 export default router

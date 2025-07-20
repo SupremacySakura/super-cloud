@@ -44,12 +44,17 @@ export const resourceRoutes: RouteRecordRaw[] = [
 /**
  * 资源管理路由导航
  */
-export const resourceSideBar: NavItem[] = resourceRoutes.map((item) => {
+const resourceSideBar: NavItem[] = []
+resourceRoutes.forEach((item) => {
+    if(!item.meta || !item.meta.title){
+        return
+    }
     const newItem: NavItem = {
         path: item.path,
         text: item.meta?.title as string || '',
         name: item.name as string
     }
-    return newItem
+    resourceSideBar.push(newItem)
 })
 
+export {resourceSideBar}

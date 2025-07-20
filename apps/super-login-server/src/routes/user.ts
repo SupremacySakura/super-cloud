@@ -2,7 +2,7 @@ import Router from '@koa/router'
 import { sendVerificationEmail } from '../mail/index'
 import pool from '../db/mysql'
 import { RowDataPacket } from 'mysql2/promise'
-import crypto from 'crypto'
+import { createSession, getSession, deleteSession } from '../store/sessionStore'
 // 登录类型接口
 interface UserLogin {
     username: string,
@@ -18,6 +18,17 @@ interface UserRegister {
 // 发送验证码类型接口
 interface sendVerificationCode {
     email: string
+}
+// 用户信息
+export interface UserInfo {
+    id: number,
+    username: string,
+    email: string,
+    password: string,
+    avatar?: string,
+    status: 1 | 0, // 0: 禁用 1: 正常
+    created_at: string,
+    updated_at: string,
 }
 // SQL
 const register = 'insert into users (username,password,email) values (?,?,?)'
@@ -52,9 +63,10 @@ router.post('/login', async (ctx) => {
         ctx.body = ({ message: '密码错误', code: 401 })
         return
     }
-    const sid = crypto.randomBytes(16).toString('hex') // 32 字符长十六进制字符串
+    const userInfo = { ...users[0], password: '' } as UserInfo
+    const sid = createSession(userInfo)
     ctx.set('Authorization', `Bearer ${sid}`)
-    ctx.body = { message: '登录成功', code: 200, userInfo: { ...users[0], password: '' } }
+    ctx.body = { message: '登录成功', code: 200, userInfo: userInfo }
 })
 // 注册
 router.post('/register', async (ctx) => {

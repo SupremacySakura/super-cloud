@@ -9,7 +9,7 @@ const route = useRoute();
 <template>
     <div class="container">
         <header class="header">
-            <h2>资源管理</h2>
+            <h2>资源管理助手</h2>
         </header>
         <ul>
             <li v-for="(item) of resourceSideBar" :key="item.path" :class="{ active: item.path === route.path }"

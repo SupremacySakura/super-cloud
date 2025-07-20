@@ -1,6 +1,7 @@
 import axios from "axios"
 import { useUserStore } from "../stores/user"
 import { storeToRefs } from 'pinia'
+// 登录请求
 const loginRequest = axios.create({
   baseURL: 'http://localhost:3001',
   timeout: 10000,//请求超时时间
@@ -42,4 +43,37 @@ loginRequest.interceptors.response.use(
     return Promise.reject(error)
   }
 )
-export default loginRequest
+// 资源管理器请求
+const resourceStorageRequest = axios.create({
+  baseURL: 'http://localhost:3000',
+  timeout: 10000,//请求超时时间
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json'
+  },
+})
+
+// 请求拦截器
+resourceStorageRequest.interceptors.request.use(
+  config => {
+    // 在请求前做些什么,比如发送token
+    const { sid } = storeToRefs(useUserStore())
+    config.headers.Authorization = `Bearer ${sid.value}`
+    return config
+  },
+  error => {
+    return Promise.reject(error)
+  }
+)
+
+// 响应拦截器
+resourceStorageRequest.interceptors.response.use(
+  async (response) => {
+    // 对响应数据做些什么
+    return response
+  },
+  async (error) => {
+    return Promise.reject(error)
+  }
+)
+export { loginRequest,resourceStorageRequest }

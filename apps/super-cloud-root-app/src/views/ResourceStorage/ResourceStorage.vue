@@ -9,7 +9,7 @@ import { RouterView } from 'vue-router'
             <el-aside width="200px">
                 <SideBar></SideBar>
             </el-aside>
-            <el-main style="padding: 0;">
+            <el-main style="padding: 0; max-width: calc(100vw - 200px); overflow: hidden;">
                 <RouterView></RouterView>
             </el-main>
         </el-container>
