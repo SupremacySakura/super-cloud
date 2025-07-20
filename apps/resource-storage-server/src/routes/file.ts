@@ -3,9 +3,9 @@ import fs from 'fs-extra'
 import path from 'path'
 import { readDirRecursive } from '../utils';
 import { randomUUID } from 'crypto';
-import { FileItem } from '../types/file';
+import { FileItem, ImageItem } from '../types/file';
 import koaBody from 'koa-body'
-import { console } from 'inspector';
+import { glob } from 'glob'
 // 文件根目录
 const ROOT_DIR = path.resolve(__dirname, '../files');
 
@@ -115,6 +115,40 @@ router.post('/upload', koaBody({
     }
 
     ctx.body = { message: '上传成功', code: 200 }
+})
+// 获取所有图片
+router.get('/images', async (ctx) => {
+    const allowedDirs = ['public'] // 设置有权限的图片目录
+    const result: ImageItem[] = []
+
+    for (const dir of allowedDirs) {
+        const fullPath = path.join(ROOT_DIR, dir)
+        if (!fs.existsSync(fullPath)) continue
+
+        const files = await glob('**/*.{png,jpg,jpeg,gif,svg,webp}', {
+            cwd: fullPath,       // 设置当前查找目录
+            absolute: true,      // 返回绝对路径
+            nodir: true,         // 排除文件夹
+            nocase: true,
+            follow: true,
+        })
+        for (const file of files) {
+            const stat = await fs.stat(file)
+            const relativePath = path.relative(ROOT_DIR, file).replace(/\\/g, '/')
+            result.push({
+                name: path.basename(file),
+                path: '/' + relativePath,
+                url: `${ctx.protocol}://${ctx.host}/resource/${relativePath}`,
+                size: stat.size, // 添加文件大小（单位：字节）
+            })
+        }
+    }
+
+    ctx.body = {
+        code: 200,
+        message: '图片获取成功',
+        data: result,
+    }
 })
 
 export default router

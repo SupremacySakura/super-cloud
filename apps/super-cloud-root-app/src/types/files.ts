@@ -9,3 +9,9 @@ export interface FileItem {
     size?: number;
     modifiedTime?: string;
 }
+export interface ImageItem {
+    name: string;
+    url: string;
+    path: string;
+    size: number;
+}

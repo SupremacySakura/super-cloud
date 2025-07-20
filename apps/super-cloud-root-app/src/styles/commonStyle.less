@@ -1,14 +1,44 @@
-.primary-button {
-    background-color: #0066ff;
-    color: white;
+button {
+    padding: 6px 10px; // 调整按钮内边距
+    border-radius: 6px;
+    font-size: 12px; // 减小字体大小
+    font-weight: 500;
+    transition: all 0.2s ease;
     border: none;
-    border-radius: 4px;
-    padding: 6px 16px;
-    font-size: 14px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    flex: 1; // 让按钮均匀分配空间
+    min-width: 80px; // 设置最小宽度
+    text-align: center; // 文字居中
 
-    &:hover {
-        background-color: #0052cc;
+    &.primary-button {
+        background-color: #007bff;
+        color: #ffffff;
+
+        &:hover {
+            background-color: #0069d9;
+        }
+    }
+
+    &.secondary-button {
+        background-color: #f1f5f9;
+        color: #1e3a8a;
+
+        &:hover {
+            background-color: #e2e8f0;
+        }
+    }
+
+    &.third-button {
+        background-color: #e6f7ff;
+        color: #0050b3;
+
+        &:hover {
+            background-color: #bae7ff;
+        }
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 }

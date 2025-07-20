@@ -6,6 +6,7 @@ import { getAllFiles, getFileContent, uploadFile } from '../../../services/apis/
 import { useUserStore } from '../../../stores/user';
 import { storeToRefs } from 'pinia';
 import { ElMessage } from 'element-plus';
+import { formatSize,formatTime } from '../../../utils'
 const { userInfo } = storeToRefs(useUserStore());
 // 文件树数据（假设由父组件传入或后端加载）
 const fileTree = ref<FileItem[]>([]);
@@ -20,7 +21,7 @@ const treeProps = {
     children: 'children',
     label: 'name',
 };
-
+const fileList = ref<File[]>([])
 /**
  * 文件点击事件处理函数
  */
@@ -40,34 +41,7 @@ const onFileClick = async (node: FileItem) => {
         content.value = '';
     }
 };
-/**
- * 文件大小格式化
- * @param size 文件大小
- */
-const formatSize = (size: number | undefined): string => {
-    if (typeof size !== 'number') return '';
-    if (size < 1024) return `${size} B`;
-    if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
-    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
-}
-/**
- * 文件时间格式化
- * @param time 时间
- */
-const formatTime = (time: string | undefined): string => {
-    if (!time) return '';
-    const date = new Date(time);
-    return date.toLocaleString('zh-CN', {
-        timeZone: 'Asia/Shanghai',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-    }).replace(/\//g, '-');
-}
+
 // 判断是否是图片类型（根据文件后缀）
 const isImage = (name: string): boolean => {
     return /\.(png|jpe?g|gif|bmp|webp|svg)$/i.test(name)
@@ -82,7 +56,6 @@ const refreshFileTree = async () => {
             if (res.data.code === 200) {
                 fileTree.value = res.data.data
                 ElMessage.success('获取文件列表成功')
-                console.log(res.data)
             } else {
                 ElMessage.error(`获取文件列表失败: ${res.data.message}`)
             }
@@ -95,8 +68,8 @@ const refreshFileTree = async () => {
  * 上传文件
  * @param options - 上传配置项
  */
-const customUpload = async (options: any) => {
-    const file = options.file
+const uploadSingle = async (options: any) => {
+    const file = options.raw
     const targetPath = selectedFile.value?.path || '/public'
 
     try {
@@ -104,6 +77,7 @@ const customUpload = async (options: any) => {
         if (res.data.code === 200) {
             console.log(res.data)
             ElMessage.success('上传成功')
+            fileList.value = fileList.value.filter(item => item.name !== file.name)
             // 刷新列表
             refreshFileTree()
         } else {
@@ -112,6 +86,12 @@ const customUpload = async (options: any) => {
     } catch (err) {
         console.error(err)
         ElMessage.error('上传出错')
+    }
+}
+// 手动上传全部文件
+const uploadAll = async () => {
+    for (const file of fileList.value) {
+        await uploadSingle(file)
     }
 }
 onMounted(async () => {
@@ -143,12 +123,21 @@ onMounted(async () => {
             <pre v-else-if="content" class="content">{{ content }}</pre>
             <!-- 如果是目录，则显示上传区域 -->
             <div v-else-if="selectedFile && selectedFile.type === 'folder'" class="upload-area">
-                <el-upload drag :http-request="customUpload" multiple="true"
-                    :show-file-list="false" :headers="{}">
+                <el-upload drag multiple :auto-upload="false" v-model:file-list="fileList" :show-file-list="false"
+                    :headers="{}">
                     <i class="el-icon-upload"></i>
                     <div class="el-upload__text">拖拽文件到此或 <em>点击上传</em></div>
                     <div class="el-upload__tip">支持常规文件上传</div>
                 </el-upload>
+                <button @click="uploadAll">点击上传</button>
+
+                <!-- 文件预览列表 -->
+                <ul class="file-list">
+                    <li v-for="(file, index) in fileList" :key="index">
+                        {{ file.name }}
+                        <button @click="uploadSingle(file)">上传</button>
+                    </li>
+                </ul>
             </div>
 
             <!-- 默认提示 -->
@@ -190,6 +179,72 @@ onMounted(async () => {
     padding: 20px;
     overflow-y: auto;
     background-color: #ffffff;
+}
+
+.upload-area {
+    padding: 20px;
+    background-color: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    margin-top: 20px;
+}
+
+.upload-area button {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: #2563eb;
+    }
+
+    &:disabled {
+        background-color: #93c5fd;
+        cursor: not-allowed;
+    }
+}
+
+.file-list {
+    margin-top: 15px;
+    padding: 0;
+    list-style: none;
+}
+
+.file-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background-color: #ffffff;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    border: 1px solid #e5e7eb;
+    transition: box-shadow 0.2s;
+
+    &:hover {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+}
+
+.file-list button {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: #059669;
+    }
 }
 
 .file-info {

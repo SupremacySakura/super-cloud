@@ -1,6 +1,6 @@
 import { resourceStorageRequest } from "../request";
 import type { ApiResponse } from '../../types/api'
-import type { FileItem } from '../../types/files'
+import type { FileItem, ImageItem } from '../../types/files'
 import type { AxiosResponse } from 'axios'
 // 获取所有文件
 const getAllFiles = (username: string): Promise<AxiosResponse<ApiResponse<FileItem[]>>> => {
@@ -12,7 +12,7 @@ const getAllFiles = (username: string): Promise<AxiosResponse<ApiResponse<FileIt
 }
 // 获取文件内容
 const getFileContent = (filePath: string): Promise<AxiosResponse<ApiResponse<string>>> => {
-    return resourceStorageRequest.get(`/file/read`,{
+    return resourceStorageRequest.get(`/file/read`, {
         params: {
             filePath
         }
@@ -31,4 +31,11 @@ const uploadFile = (
         headers: { 'Content-Type': 'multipart/form-data' }
     })
 }
-export { getAllFiles,getFileContent,uploadFile }
+// 获取所有图片资源
+const getAllImages = (): Promise<AxiosResponse<ApiResponse<ImageItem[]>>> => {
+    return resourceStorageRequest.get(
+        '/file/images'
+    )
+}
+
+export { getAllFiles, getFileContent, uploadFile, getAllImages }

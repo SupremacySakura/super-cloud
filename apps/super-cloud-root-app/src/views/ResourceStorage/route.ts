@@ -17,11 +17,11 @@ export const resourceRoutes: RouteRecordRaw[] = [
         }
     },
     {
-        path: '/resource/imgPreview',
-        name: 'resource-imgPreview',
-        component: () => import('./components/ImgPreview.vue'),
+        path: '/resource/imageMarket',
+        name: 'resource-imageMarket',
+        component: () => import('./components/ImageMarket.vue'),
         meta: {
-            title: '图片预览'
+            title: '图片市场'
         }
     },
     {
@@ -30,14 +30,6 @@ export const resourceRoutes: RouteRecordRaw[] = [
         component: () => import('./components/FileManagement.vue'),
         meta: {
             title: '文件管理'
-        }
-    },
-    {
-        path: '/resource/uploadFile',
-        name: 'resource-uploadFile',
-        component: () => import('./components/UploadFile.vue'),
-        meta: {
-            title: '文件上传'
         }
     },
 ]
