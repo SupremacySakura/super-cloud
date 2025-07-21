@@ -1,19 +1,20 @@
-import Router from '@koa/router'
-import fs from 'fs-extra'
-import path from 'path'
+import Router from '@koa/router';
+import fs from 'fs-extra';
+import path from 'path';
 import { readDirRecursive } from '../utils';
 import { randomUUID } from 'crypto';
 import { FileItem, ImageItem } from '../types/file';
-import koaBody from 'koa-body'
-import { glob } from 'glob'
+import koaBody from 'koa-body';
+import { glob } from 'glob';
+import { authMiddleware } from '../middleware/checkLogin';
 // 文件根目录
 const ROOT_DIR = path.resolve(__dirname, '../files');
-
+const checkApiUrl = 'http://localhost:3001/user/check'
 const router = new Router({
     prefix: '/file' // 所有 user 路由都会带上这个前缀
 })
 // 获取用户有权限访问的文件结构
-router.get('/', async (ctx) => {
+router.get('/',authMiddleware(checkApiUrl), async (ctx) => {
     const user = ctx.query.username as string;
     if (!user) {
         ctx.body = { message: 'Missing user parameter', code: 400 };
@@ -45,7 +46,7 @@ router.get('/', async (ctx) => {
     ctx.body = { message: '文件列表获取成功', code: 200, data: fileTree };
 });
 // 获取文件内容
-router.get('/read', async (ctx) => {
+router.get('/read', authMiddleware(checkApiUrl), async (ctx) => {
     const queryPath = ctx.query.filePath as string
 
     if (!queryPath) {
@@ -74,7 +75,7 @@ router.get('/read', async (ctx) => {
     }
 })
 //文件上传接口
-router.post('/upload', koaBody({
+router.post('/upload', authMiddleware(checkApiUrl), koaBody({
     multipart: true,
     formidable: {
         uploadDir: ROOT_DIR,       // 上传文件临时保存目录
@@ -117,7 +118,7 @@ router.post('/upload', koaBody({
     ctx.body = { message: '上传成功', code: 200 }
 })
 // 获取所有图片
-router.get('/images', async (ctx) => {
+router.get('/images', authMiddleware(checkApiUrl), async (ctx) => {
     const allowedDirs = ['public'] // 设置有权限的图片目录
     const result: ImageItem[] = []
 

@@ -6,7 +6,10 @@ import { rootNavBar } from '../router/route';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '../stores/user';
 import { storeToRefs } from 'pinia';
+import { postLogout } from '../services/apis/login';
+import { ElMessage } from 'element-plus';
 const { userInfo, sid } = storeToRefs(useUserStore())
+const { setUserInfo,setSid} = useUserStore();
 const route = useRoute();
 const router = useRouter();
 // 侧边栏
@@ -20,6 +23,25 @@ const isLogin = computed(() => {
  */
 const handleToggleDrawer = () => {
     drawerOpen.value = !drawerOpen.value;
+};
+/**
+ * 登出
+ */
+const handleLogout = async () => {
+    try{
+       const res = await postLogout();
+       if(res.data.code === 200){
+           ElMessage.success('登出成功');
+       }else{
+         
+           ElMessage.error(`登出失败,强制登出: ${res.data.message}`)
+       }
+    }catch(err){
+        ElMessage.error(`登出失败,强制登出: ${err}`)
+    }finally{
+        setUserInfo(null);
+        setSid('');
+    }
 };
 </script>
 
@@ -47,7 +69,7 @@ const handleToggleDrawer = () => {
             <section class="user-info" v-else>
                 <img :src="userInfo?.avatar" alt="">
                 <span>{{ userInfo?.username }}</span>
-                <button class="primary-button">登出</button>
+                <button class="primary-button" @click="handleLogout()">登出</button>
             </section>
         </div>
         <el-drawer v-model="drawerOpen" direction="ltr" :with-header="false">

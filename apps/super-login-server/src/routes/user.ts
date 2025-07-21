@@ -64,7 +64,11 @@ router.post('/login', async (ctx) => {
         return
     }
     const userInfo = { ...users[0], password: '' } as UserInfo
-    const sid = createSession(userInfo)
+    const sid =await createSession(userInfo)
+    if(!sid){
+        ctx.body = ({ message: '登录失败', code: 500 })
+        return
+    }
     ctx.set('Authorization', `Bearer ${sid}`)
     ctx.body = { message: '登录成功', code: 200, userInfo: userInfo }
 })
@@ -98,6 +102,53 @@ router.post('/register', async (ctx) => {
         ctx.body = ({ message: '注册成功', code: 200 })
     } else {
         ctx.body = ({ message: '注册失败', code: 500 })
+    }
+})
+// 检验是否登录
+router.get('/check', async (ctx) => {
+    const sid = ctx.query.sid as string
+
+    if (!sid) {
+        ctx.body = { message: '未登录', code: 401 }
+        return
+    }
+
+    const userInfo = await getSession(sid)
+    if (!userInfo) {
+        ctx.body = { message: '未登录', code: 401 }
+        return
+    }
+
+    ctx.body = {
+        message: '已登录',
+        code: 200,
+        data: userInfo
+    }
+})
+// 登出
+router.post('/logout', async (ctx) => {
+    const authHeader = ctx.headers.authorization || ''
+    const tokenMatch = authHeader.match(/^Bearer (.+)$/)
+    const sid = tokenMatch ? tokenMatch[1] : null
+
+    if (!sid) {
+        ctx.body = { message: '未登录，缺少有效的token', code: 401 }
+        return
+    }
+
+    try {
+        await deleteSession(sid)
+        ctx.body = {
+            message: '已登出',
+            code: 200
+        }
+    } catch (error) {
+        console.error('登出失败:', error)
+        ctx.body = {
+            message: '登出失败',
+            code: 500,
+            error: error instanceof Error ? error.message : String(error)
+        }
     }
 })
 export default router

@@ -23,9 +23,13 @@ const postRegister = (username: string, password: string, email: string, code: s
         code,
     })
 }
-
+// 登出
+const postLogout = (): Promise<AxiosResponse<ApiResponse<CommonResponseData>>> => {
+    return loginRequest.post('/user/logout')
+}
 export {
     postLogin,
     postSendVerificationCode,
     postRegister,
+    postLogout,
 }

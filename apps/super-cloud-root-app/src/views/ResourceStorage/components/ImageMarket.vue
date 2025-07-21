@@ -66,21 +66,26 @@ onMounted(async () => {
 
 <template>
     <div class="image-market">
-        <el-card v-for="img in images" :key="img.url" class="image-card" shadow="hover">
-            <el-image :src="img.url" :preview-src-list="[img.url]" fit="cover" style="width: 100%; height: 200px;"
-                :preview-teleported="true" />
-            <div class="image-info">
-                <div class="name">{{ img.name }}</div>
-                <div class="path">路径:{{ img.path }}</div>
-                <div class="url">链接:{{ img.url }}</div>
-                <div class="size">大小:{{ formatSize(img.size) }}</div>
-            </div>
-            <section>
-                <button class="primary-button" @click="handleDownload(img.url, img.name)">下载</button>
-                <button class="secondary-button" @click="handleCopy(img.url)">复制地址</button>
-                <button class="third-button" @click="handleInfo(img)">查看文件信息</button>
-            </section>
-        </el-card>
+        <template v-if="images.length">
+            <el-card v-for="img in images" :key="img.url" class="image-card" shadow="hover">
+                <el-image :src="img.url" :preview-src-list="[img.url]" fit="cover" style="width: 100%; height: 200px;"
+                    :preview-teleported="true" />
+                <div class="image-info">
+                    <div class="name">{{ img.name }}</div>
+                    <div class="path">路径:{{ img.path }}</div>
+                    <div class="url">链接:{{ img.url }}</div>
+                    <div class="size">大小:{{ formatSize(img.size) }}</div>
+                </div>
+                <section>
+                    <button class="primary-button" @click="handleDownload(img.url, img.name)">下载</button>
+                    <button class="secondary-button" @click="handleCopy(img.url)">复制地址</button>
+                    <button class="third-button" @click="handleInfo(img)">查看文件信息</button>
+                </section>
+            </el-card>
+        </template>
+        <div v-else class="empty-wrapper">
+            <p class="empty-text">暂无图片资源</p>
+        </div>
     </div>
 </template>
 
@@ -91,7 +96,7 @@ onMounted(async () => {
     gap: 20px;
     padding: 24px;
     background-color: #f4f6f8; // 灰白背景
-
+    height: 100%;
     .image-card {
         display: flex;
         flex-direction: column;
@@ -195,5 +200,15 @@ onMounted(async () => {
             }
         }
     }
+        .empty-wrapper {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+            .empty-text {
+                font-size: 14px;
+                color: #6b7280;
+            }
+        }
 }
 </style>

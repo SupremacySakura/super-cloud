@@ -1,94 +1,968 @@
-<script setup lang="ts">
-</script>
+<script lang="ts" setup>
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '../../stores/user';
+import { storeToRefs } from 'pinia';
+import { resourceStorageRequest } from '../../services/request';
+import type { Activity, Announcement, SystemStatus, ResourceStats, UserStats } from '../../types/home';
 
+// 状态管理
+const router = useRouter();
+const { userInfo } = storeToRefs(useUserStore());
+const isLogin = computed(() => !!userInfo.value);
+
+// 数据状态
+const resourceStats = ref<ResourceStats | null>(null);
+const systemStatus = ref<SystemStatus | null>(null);
+const userStats = ref<UserStats | null>(null);
+const recentActivities = ref<Activity[]>([]);
+const announcements = ref<Announcement[]>([]);
+const loadingActivities = ref(true);
+const loadingAnnouncements = ref(true);
+
+// 模态框状态
+const uploadModalVisible = ref(false);
+const isDragging = ref(false);
+const resourceType = ref('');
+const resourceTag = ref('');
+const selectedFiles = ref<File[]>([]);
+
+// 生命周期
+onMounted(() => {
+    fetchDashboardData();
+    fetchActivities();
+    fetchAnnouncements();
+});
+
+// 数据获取
+const fetchDashboardData = async () => {
+    try {
+        // 这里应该是真实API调用
+        // const response = await resourceStorageRequest.get('/dashboard/stats');
+        // 模拟数据
+        setTimeout(() => {
+            resourceStats.value = {
+                total: 248,
+                active: 186,
+                categories: {
+                    images: 124,
+                    documents: 76,
+                    videos: 28,
+                    others: 20
+                }
+            };
+            systemStatus.value = {
+                uptime: '99.8%',
+                lastBackup: '2025-07-18 02:30',
+                serverLoad: '32%'
+            };
+            userStats.value = {
+                usage: '68%',
+                storage: '12.5GB / 20GB',
+                recentUploads: 12
+            };
+        }, 800);
+    } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+    }
+};
+
+const fetchActivities = async () => {
+    try {
+        // 模拟API调用
+        setTimeout(() => {
+            recentActivities.value = [
+                {
+                    id: 1,
+                    title: '资源上传成功',
+                    description: '首页大图.png 已成功上传到资源库',
+                    timestamp: Date.now() - 3600000,
+                    type: 'upload'
+                },
+                {
+                    id: 2,
+                    title: '资源下载',
+                    description: '用户下载了图片市场中的风景照.jpg',
+                    timestamp: Date.now() - 86400000,
+                    type: 'download'
+                },
+                {
+                    id: 3,
+                    title: '账户登录',
+                    description: '在新设备上登录了您的账户',
+                    timestamp: Date.now() - 172800000,
+                    type: 'login'
+                }
+            ];
+            loadingActivities.value = false;
+        }, 1000);
+    } catch (error) {
+        console.error('Failed to fetch activities:', error);
+        loadingActivities.value = false;
+    }
+};
+
+const fetchAnnouncements = async () => {
+    try {
+        // 模拟API调用
+        setTimeout(() => {
+            announcements.value = [
+                {
+                    id: 1,
+                    title: '系统维护通知',
+                    content: '将于2025-07-25 02:00-04:00进行系统维护，期间服务可能中断，请合理安排工作。',
+                    date: '2025-07-15',
+                    author: '系统管理员',
+                    isImportant: true
+                },
+                {
+                    id: 2,
+                    title: '新功能上线',
+                    content: '图片市场新增批量下载功能，现在您可以同时下载多个图片资源。',
+                    date: '2025-07-10',
+                    author: '产品团队',
+                    isImportant: false
+                }
+            ];
+            loadingAnnouncements.value = false;
+        }, 1200);
+    } catch (error) {
+        console.error('Failed to fetch announcements:', error);
+        loadingAnnouncements.value = false;
+    }
+};
+
+// 事件处理
+const showImageMarket = () => {
+    // 检查图片市场路由是否存在
+    router.push('/image-market').catch(() => {
+        // 如果路由不存在，显示提示
+        alert('图片市场功能即将上线，敬请期待！');
+    });
+};
+
+const showUploadModal = () => {
+    if (!isLogin.value) {
+        router.push('/login');
+        return;
+    }
+    uploadModalVisible.value = true;
+};
+
+const showSettings = () => {
+    alert('系统设置功能即将上线，敬请期待！');
+};
+
+const showAllActivities = () => {
+    alert('查看全部活动记录');
+};
+
+const showAllAnnouncements = () => {
+    alert('查看全部系统公告');
+};
+
+const showAnnouncementDetail = (id: number) => {
+    alert(`查看公告 ${id} 的详细内容`);
+};
+
+const handleFileUpload = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    if (input.files) {
+        selectedFiles.value = Array.from(input.files);
+    }
+};
+
+const confirmUpload = () => {
+    if (!selectedFiles.value.length) {
+        alert('请选择要上传的文件');
+        return;
+    }
+    if (!resourceType.value) {
+        alert('请选择资源类型');
+        return;
+    }
+    // 这里应该是真实的上传逻辑
+    alert(`成功上传 ${selectedFiles.value.length} 个文件`);
+    uploadModalVisible.value = false;
+    selectedFiles.value = [];
+    resourceType.value = '';
+    resourceTag.value = '';
+    // 刷新数据
+    fetchDashboardData();
+    fetchActivities();
+};
+
+// 辅助函数
+const formatTime = (timestamp: number) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+
+    if (diff < 60) return `${diff}分钟前`;
+    if (diff < 1440) return `${Math.floor(diff / 60)}小时前`;
+    if (diff < 43200) return `${Math.floor(diff / 1440)}天前`;
+    return date.toLocaleDateString();
+};
+</script>
 <template>
-    <div class="container">
-        <div class="welcome-section">
-            <h1 class="title">欢迎使用 ResourceWebsite</h1>
-            <p class="subtitle">您的资源管理助手</p>
-        </div>
-        <div class="content-section">
-            <div class="card">
-                <div class="card-content">
-                    <h2>开始使用</h2>
-                    <p>在这里，您可以轻松管理和组织您的资源。</p>
+    <div class="super-cloud-home">
+        <!-- 用户欢迎区域 -->
+        <section class="welcome-section">
+            <div class="welcome-content">
+                <h1>欢迎使用超级云平台，{{ userInfo?.username || '用户' }}</h1>
+                <p class="welcome-desc">
+                    {{ isLogin ? '今天也是高效工作的一天！' : '登录后即可享受完整功能体验' }}
+                </p>
+                <div v-if="!isLogin" class="auth-buttons">
+                    <button class="primary-button" @click="router.push('/login')">立即登录</button>
+                    <button class="secondary-button" @click="router.push('/register')">免费注册</button>
                 </div>
             </div>
+            <div class="welcome-bg"></div>
+        </section>
+
+        <!-- 系统概览卡片 -->
+        <section class="system-overview">
+            <h2 class="section-title">系统概览</h2>
+            <div class="overview-grid">
+                <div class="stat-card" :class="{ loading: !resourceStats }">
+                    <div class="stat-icon resource-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 11V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 5V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="stat-value">{{ resourceStats?.total || '--' }}</div>
+                    <div class="stat-label">总资源数</div>
+                </div>
+                <div class="stat-card" :class="{ loading: !resourceStats }">
+                    <div class="stat-icon active-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15C10.9391 15 9.92172 15.4214 9.17157 16.1716C8.42143 16.9217 8 17.9391 8 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 11C8 13.2091 9.79086 15 12 15C14.2091 15 16 13.2091 16 11C16 8.79086 14.2091 7 12 7C9.79086 7 8 8.79086 8 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 5V3C8 1.89543 8.89543 1 10 1H14C15.1046 1 16 1.89543 16 3V5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="stat-value">{{ resourceStats?.active || '--' }}</div>
+                    <div class="stat-label">活跃资源</div>
+                </div>
+                <div class="stat-card" :class="{ loading: !systemStatus }">
+                    <div class="stat-icon status-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="stat-value">{{ systemStatus?.uptime || '--' }}</div>
+                    <div class="stat-label">系统可用性</div>
+                </div>
+                <div class="stat-card" :class="{ loading: !userStats }">
+                    <div class="stat-icon user-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15C10.9391 15 9.92172 15.4214 9.17157 16.1716C8.42143 16.9217 8 17.9391 8 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 11C9 13.2091 10.7909 15 13 15C15.2091 15 17 13.2091 17 11C17 8.79086 15.2091 7 13 7C10.7909 7 9 8.79086 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="stat-value">{{ userStats?.usage || '0%' }}</div>
+                    <div class="stat-label">资源使用率</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 功能快捷入口 -->
+        <section class="quick-actions">
+            <h2 class="section-title">快速操作</h2>
+            <div class="actions-grid">
+                <div class="action-card" @click="router.push('/resource')">
+                    <div class="action-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 11V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 5V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>资源管理器</h3>
+                    <p>管理和浏览所有系统资源</p>
+                </div>
+                <div class="action-card" @click="showImageMarket">
+                    <div class="action-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
+                            <polyline points="21 15 16 10 5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>图片市场</h3>
+                    <p>浏览和下载高质量图片资源</p>
+                </div>
+                <div class="action-card" @click="showUploadModal">
+                    <div class="action-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>上传资源</h3>
+                    <p>快速上传新的文件和资源</p>
+                </div>
+                <div class="action-card" @click="showSettings">
+                    <div class="action-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.22 2H11.78C8.26 2 5.19 3.54 3 6.24V11.76C5.19 14.46 8.26 16 11.78 16H12.22C15.74 16 18.81 14.46 21 11.76V6.24C18.81 3.54 15.74 2 12.22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M15.31 18.9C16.04 18.63 16.68 18.06 17.09 17.33C18.34 15.18 19 12.79 19 10.31C19 9.55 18.82 8.81 18.48 8.15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5 10.31C5 12.79 5.66 15.18 6.91 17.33C7.32 18.06 7.96 18.63 8.69 18.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 22C13.79 22 15.42 21.22 16.5 19.94" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 2V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>系统设置</h3>
+                    <p>自定义您的使用体验</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 最近活动和公告 -->
+        <div class="dashboard-grid">
+            <!-- 最近活动 -->
+            <section class="activity-section">
+                <div class="section-header">
+                    <h2 class="section-title">最近活动</h2>
+                    <button class="view-all" @click="showAllActivities">查看全部</button>
+                </div>
+                <div class="activity-list" :class="{ loading: !recentActivities.length }">
+                    <div v-for="activity in recentActivities" :key="activity.id" class="activity-item">
+                        <div class="activity-icon" :class="activity.type">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 8V12L15 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">{{ activity.title }}</div>
+                            <div class="activity-desc">{{ activity.description }}</div>
+                            <div class="activity-time">{{ formatTime(activity.timestamp) }}</div>
+                        </div>
+                    </div>
+                    <div v-if="!recentActivities.length && !loadingActivities" class="empty-state">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 8V12L15 15" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <p>暂无活动记录</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 系统公告 -->
+            <section class="announcement-section">
+                <div class="section-header">
+                    <h2 class="section-title">系统公告</h2>
+                    <button class="view-all" @click="showAllAnnouncements">查看全部</button>
+                </div>
+                <div class="announcement-list" :class="{ loading: !announcements.length }">
+                    <div v-for="announcement in announcements" :key="announcement.id" class="announcement-item" :class="{ important: announcement.isImportant }">
+                        <div class="announcement-header">
+                            <h3 class="announcement-title">{{ announcement.title }}</h3>
+                            <div class="announcement-date">{{ announcement.date }}</div>
+                        </div>
+                        <div class="announcement-content">{{ announcement.content }}</div>
+                        <div class="announcement-footer">
+                            <span class="announcement-author">发布者: {{ announcement.author }}</span>
+                            <button class="read-more" @click="showAnnouncementDetail(announcement.id)">阅读更多</button>
+                        </div>
+                    </div>
+                    <div v-if="!announcements.length && !loadingAnnouncements" class="empty-state">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10.293 3.293L1.82 11.764C1.317 12.267 1.317 13.001 1.82 13.504L10.293 21.976C10.796 22.479 11.53 22.479 12.033 21.976L22.18 11.829C22.683 11.326 22.683 10.592 22.18 10.089L13.707 1.617C13.204 1.114 12.47 1.114 11.967 1.617L10.293 3.293Z" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 8V12" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 16H12.01" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <p>暂无公告信息</p>
+                    </div>
+                </div>
+            </section>
         </div>
+
+        <!-- 上传资源模态框 -->
+        <el-dialog v-model="uploadModalVisible" title="上传新资源" width="600px">
+            <div class="upload-container">
+                <div class="upload-area" :class="{ dragging: isDragging }">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17 8L12 3L7 8" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 3V15" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <p>拖放文件到此处，或 <span class="browse-link">浏览文件</span></p>
+                    <input type="file" class="file-input" @change="handleFileUpload" multiple/>
+                </div>
+                <div class="upload-options">
+                    <el-select v-model="resourceType" placeholder="选择资源类型">
+                        <el-option label="图片" value="image"></el-option>
+                        <el-option label="文档" value="document"></el-option>
+                        <el-option label="视频" value="video"></el-option>
+                        <el-option label="其他" value="other"></el-option>
+                    </el-select>
+                    <el-input v-model="resourceTag" placeholder="添加标签（可选）"></el-input>
+                </div>
+            </div>
+            <template #footer>
+                <button class="secondary-button" @click="uploadModalVisible = false">取消</button>
+                <button class="primary-button" @click="confirmUpload">确认上传</button>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
-<style scoped>
-.container {
+
+
+<style lang="less" scoped>
+
+.super-cloud-home {
+    padding: 20px 100px;
+    background-color: #f8f9fb;
+    color: #333;
+    font-family: 'Segoe UI', sans-serif;
     width: 100%;
-    height: 100%;
-    background-color: rgb(245, 247, 250);
-    flex: 1;
-    padding: 32px;
-    background-color: #f5f7fa;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    cursor: default;
+    min-height: calc(100vh - 50px);
+}
 
-    .welcome-section {
-        text-align: center;
-        animation: fadeInDown 0.6s ease-out;
+/* 欢迎区域 */
+.welcome-section {
+    position: relative;
+    height: 180px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0066ff 0%, #0049b7 100%);
+    color: white;
 
-        .title {
-            font-size: 32px;
-            color: #2c3e50;
-            margin-bottom: 12px;
+    .welcome-content {
+        position: relative;
+        z-index: 2;
+        padding: 40px 30px;
+        max-width: 700px;
+
+        h1 {
+            font-size: 28px;
+            margin: 0 0 10px 0;
             font-weight: 600;
         }
 
-        .subtitle {
-            font-size: 18px;
-            color: #606f7b;
+        .welcome-desc {
+            font-size: 16px;
+            opacity: 0.9;
+            margin: 0 0 20px 0;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 12px;
+
+            button {
+                min-width: 100px;
+            }
         }
     }
 
-    .content-section {
-        animation: fadeInUp 0.6s ease-out;
+    .welcome-bg {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50%;
+        height: 100%;
+        z-index: 1;
 
-        .card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-            &:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
-            }
-
-            .card-content {
-                padding: 24px;
-
-                h2 {
-                    font-size: 24px;
-                    color: #2c3e50;
-                    margin-bottom: 16px;
-                }
-
-                p {
-                    color: #606f7b;
-                    line-height: 1.6;
-                }
-            }
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url(../../assets/cloud.svg);
+            background-repeat: no-repeat;
+            background-position: right center;
+            background-size: contain;
+            opacity: 0.15;
         }
     }
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
+/* 系统概览 */
+.system-overview {
+    margin-bottom: 30px;
+
+    .overview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .stat-card {
+        background-color: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0, 102, 255, 0.08);
+        border: 1px solid #f0f0f0;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.12);
+        }
+
+        &.loading {
+            .stat-value {
+                opacity: 0.5;
+                animation: pulse 1.5s infinite;
+            }
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            color: white;
+
+            &.resource-icon {
+                background-color: #0066ff;
+            }
+
+            &.active-icon {
+                background-color: #00b42a;
+            }
+
+            &.status-icon {
+                background-color: #ff7d00;
+            }
+
+            &.user-icon {
+                background-color: #722ed1;
+            }
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1d2129;
+            margin: 0 0 5px 0;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+        }
+    }
+}
+
+/* 快速操作 */
+.quick-actions {
+    margin-bottom: 30px;
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+    }
+
+    .action-card {
+        background-color: white;
+        border-radius: 12px;
+        padding: 25px 20px;
+        box-shadow: 0 4px 12px rgba(0, 102, 255, 0.08);
+        border: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+
+        &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.12);
+            border-color: #e6f0ff;
+        }
+
+        .action-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #f0f7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            color: #0066ff;
+        }
+
+        h3 {
+            color: #1e3a8a;
+            margin: 0 0 8px 0;
+            font-size: 18px;
+        }
+
+        p {
+            color: #666;
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    }
+}
+
+/* 活动和公告区域 */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.activity-section, .announcement-section {
+    background-color: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.08);
+    border: 1px solid #f0f0f0;
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .view-all {
+        font-size: 14px;
+        color: #0066ff;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+/* 活动列表 */
+.activity-list {
+    max-height: 380px;
+    overflow-y: auto;
+    padding-right: 10px;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f5f5f5;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #ddd;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: #ccc;
+    }
+}
+
+.activity-item {
+    display: flex;
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    .activity-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        flex-shrink: 0;
+
+        &.upload {
+            background-color: #e6f7ff;
+            color: #0066ff;
+        }
+
+        &.download {
+            background-color: #f6ffed;
+            color: #00b42a;
+        }
+
+        &.login {
+            background-color: #fff7e8;
+            color: #ff7d00;
+        }
+    }
+
+    .activity-content {
+        flex-grow: 1;
+    }
+
+    .activity-title {
+        font-size: 14px;
+        color: #1d2129;
+        margin: 0 0 3px 0;
+        font-weight: 500;
+    }
+
+    .activity-desc {
+        font-size: 13px;
+        color: #666;
+        margin: 0 0 5px 0;
+    }
+
+    .activity-time {
+        font-size: 12px;
+        color: #999;
+        margin: 0;
+    }
+}
+
+/* 公告列表 */
+.announcement-list {
+    max-height: 380px;
+    overflow-y: auto;
+    padding-right: 10px;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f5f5f5;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #ddd;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: #ccc;
+    }
+}
+
+.announcement-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &.important {
+        border-left: 3px solid #ff4d4f;
+        padding-left: 10px;
+        margin-left: -10px;
+    }
+
+    .announcement-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+    }
+
+    .announcement-title {
+        font-size: 15px;
+        color: #1d2129;
+        margin: 0;
+        font-weight: 500;
+    }
+
+    .announcement-date {
+        font-size: 12px;
+        color: #999;
+        margin: 0;
+    }
+
+    .announcement-content {
+        font-size: 13px;
+        color: #666;
+        margin: 0 0 10px 0;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .announcement-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .announcement-author {
+        font-size: 12px;
+        color: #999;
+    }
+
+    .read-more {
+        font-size: 13px;
+        color: #0066ff;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+/* 空状态 */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #999;
+
+    svg {
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+
+    p {
+        margin: 0;
+        font-size: 14px;
+    }
+}
+
+/* 上传模态框 */
+.upload-container {
+    padding: 10px 0;
+}
+
+.upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        border-color: #0066ff;
+        background-color: #f0f7ff;
+    }
+
+    &.dragging {
+        border-color: #0066ff;
+        background-color: #e6f0ff;
+    }
+
+    svg {
+        margin-bottom: 15px;
+        color: #999;
+    }
+
+    p {
+        margin: 0;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .browse-link {
+        color: #0066ff;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    .file-input {
+        display: none;
+    }
+}
+
+.upload-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* 动画 */
+@keyframes pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.5; }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .welcome-section {
+        height: auto;
+        padding: 30px 20px;
+
+        .welcome-content {
+            padding: 0;
+        }
+
+        .welcome-bg {
+            display: none;
+        }
+    }
+
+    .overview-grid, .actions-grid, .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .upload-options {
+        grid-template-columns: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .super-cloud-home {
+        padding: 15px 10px;
+    }
+
+    .welcome-section {
+        padding: 20px 15px;
+
+        h1 {
+            font-size: 24px;
+        }
+    }
+
+    .section-title {
+        font-size: 16px;
+    }
+
+    .stat-card, .action-card {
+        padding: 15px;
+    }
+
+    .activity-section, .announcement-section {
+        padding: 15px;
     }
 }
 </style>
