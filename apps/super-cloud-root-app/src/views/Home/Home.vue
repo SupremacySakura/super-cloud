@@ -3,30 +3,79 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../../stores/user';
 import { storeToRefs } from 'pinia';
-import { resourceStorageRequest } from '../../services/request';
-import type { Activity, Announcement, SystemStatus, ResourceStats, UserStats } from '../../types/home';
+import type { Activity, Announcement } from '../../types/home';
 
 // 状态管理
 const router = useRouter();
 const { userInfo } = storeToRefs(useUserStore());
 const isLogin = computed(() => !!userInfo.value);
+// 系统概览卡片
+const statCardList = ref([
+    {
+        label: '资源统计',
+        value: '248',
+        icon: ``,
+    },
+    {
+        label: '用户使用量',
+        value: '68%',
+        icon: ``,
+    },
+    {
+        label: '存储空间',
+        value: '12.5GB / 20GB',
+        icon: ` `,
+    }
+])
+/**
+ * 进入图片市场
+ */
+const showImageMarket = () => {
+    // 检查图片市场路由是否存在
+    router.push('/resource/imageMarket').catch(() => {
+        // 如果路由不存在，显示提示
+        alert('图片市场功能即将上线，敬请期待！');
+    });
+};
+/**
+ * 系统设置
+ */
+const showSettings = () => {
+    alert('系统设置功能即将上线，敬请期待！');
+};
 
+// 快速操作卡片
+const quickOperationCardList = ref([
+    {
+        label: '资源管理器',
+        desc: '管理和浏览所有系统资源',
+        icon: ` `,
+        action: () => { router.push('/resource') }
+    },
+    {
+        label: '图片市场',
+        desc: '浏览和下载高质量图片资源',
+        icon: ` `,
+        action: showImageMarket
+    },
+    {
+        label: '上传资源',
+        desc: '快速上传文件和资源',
+        icon: ` `,
+        action: () => { router.push('/resource/fileManagement') }
+    },
+    {
+        label: '系统设置',
+        desc: '自定义您的使用体验',
+        icon: ` `,
+        action: showSettings
+    }
+])
 // 数据状态
-const resourceStats = ref<ResourceStats | null>(null);
-const systemStatus = ref<SystemStatus | null>(null);
-const userStats = ref<UserStats | null>(null);
 const recentActivities = ref<Activity[]>([]);
 const announcements = ref<Announcement[]>([]);
 const loadingActivities = ref(true);
 const loadingAnnouncements = ref(true);
-
-// 模态框状态
-const uploadModalVisible = ref(false);
-const isDragging = ref(false);
-const resourceType = ref('');
-const resourceTag = ref('');
-const selectedFiles = ref<File[]>([]);
-
 // 生命周期
 onMounted(() => {
     fetchDashboardData();
@@ -34,34 +83,14 @@ onMounted(() => {
     fetchAnnouncements();
 });
 
-// 数据获取
+/**
+ * 获取系统概览的数据
+ */
 const fetchDashboardData = async () => {
     try {
         // 这里应该是真实API调用
         // const response = await resourceStorageRequest.get('/dashboard/stats');
         // 模拟数据
-        setTimeout(() => {
-            resourceStats.value = {
-                total: 248,
-                active: 186,
-                categories: {
-                    images: 124,
-                    documents: 76,
-                    videos: 28,
-                    others: 20
-                }
-            };
-            systemStatus.value = {
-                uptime: '99.8%',
-                lastBackup: '2025-07-18 02:30',
-                serverLoad: '32%'
-            };
-            userStats.value = {
-                usage: '68%',
-                storage: '12.5GB / 20GB',
-                recentUploads: 12
-            };
-        }, 800);
     } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
     }
@@ -133,25 +162,6 @@ const fetchAnnouncements = async () => {
 };
 
 // 事件处理
-const showImageMarket = () => {
-    // 检查图片市场路由是否存在
-    router.push('/image-market').catch(() => {
-        // 如果路由不存在，显示提示
-        alert('图片市场功能即将上线，敬请期待！');
-    });
-};
-
-const showUploadModal = () => {
-    if (!isLogin.value) {
-        router.push('/login');
-        return;
-    }
-    uploadModalVisible.value = true;
-};
-
-const showSettings = () => {
-    alert('系统设置功能即将上线，敬请期待！');
-};
 
 const showAllActivities = () => {
     alert('查看全部活动记录');
@@ -163,33 +173,6 @@ const showAllAnnouncements = () => {
 
 const showAnnouncementDetail = (id: number) => {
     alert(`查看公告 ${id} 的详细内容`);
-};
-
-const handleFileUpload = (e: Event) => {
-    const input = e.target as HTMLInputElement;
-    if (input.files) {
-        selectedFiles.value = Array.from(input.files);
-    }
-};
-
-const confirmUpload = () => {
-    if (!selectedFiles.value.length) {
-        alert('请选择要上传的文件');
-        return;
-    }
-    if (!resourceType.value) {
-        alert('请选择资源类型');
-        return;
-    }
-    // 这里应该是真实的上传逻辑
-    alert(`成功上传 ${selectedFiles.value.length} 个文件`);
-    uploadModalVisible.value = false;
-    selectedFiles.value = [];
-    resourceType.value = '';
-    resourceTag.value = '';
-    // 刷新数据
-    fetchDashboardData();
-    fetchActivities();
 };
 
 // 辅助函数
@@ -225,48 +208,14 @@ const formatTime = (timestamp: number) => {
         <section class="system-overview">
             <h2 class="section-title">系统概览</h2>
             <div class="overview-grid">
-                <div class="stat-card" :class="{ loading: !resourceStats }">
+                <div class="stat-card" :class="{ loading: !item.value }" v-for="item in statCardList" :key="item.label">
                     <div class="stat-icon resource-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 11V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 5V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+
                     </div>
-                    <div class="stat-value">{{ resourceStats?.total || '--' }}</div>
-                    <div class="stat-label">总资源数</div>
+                    <div class="stat-value">{{ item.value || '--' }}</div>
+                    <div class="stat-label">{{ item.label }}</div>
                 </div>
-                <div class="stat-card" :class="{ loading: !resourceStats }">
-                    <div class="stat-icon active-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15C10.9391 15 9.92172 15.4214 9.17157 16.1716C8.42143 16.9217 8 17.9391 8 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M8 11C8 13.2091 9.79086 15 12 15C14.2091 15 16 13.2091 16 11C16 8.79086 14.2091 7 12 7C9.79086 7 8 8.79086 8 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M8 5V3C8 1.89543 8.89543 1 10 1H14C15.1046 1 16 1.89543 16 3V5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <div class="stat-value">{{ resourceStats?.active || '--' }}</div>
-                    <div class="stat-label">活跃资源</div>
-                </div>
-                <div class="stat-card" :class="{ loading: !systemStatus }">
-                    <div class="stat-icon status-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <div class="stat-value">{{ systemStatus?.uptime || '--' }}</div>
-                    <div class="stat-label">系统可用性</div>
-                </div>
-                <div class="stat-card" :class="{ loading: !userStats }">
-                    <div class="stat-icon user-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15C10.9391 15 9.92172 15.4214 9.17157 16.1716C8.42143 16.9217 8 17.9391 8 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M9 11C9 13.2091 10.7909 15 13 15C15.2091 15 17 13.2091 17 11C17 8.79086 15.2091 7 13 7C10.7909 7 9 8.79086 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <div class="stat-value">{{ userStats?.usage || '0%' }}</div>
-                    <div class="stat-label">资源使用率</div>
-                </div>
+
             </div>
         </section>
 
@@ -274,52 +223,13 @@ const formatTime = (timestamp: number) => {
         <section class="quick-actions">
             <h2 class="section-title">快速操作</h2>
             <div class="actions-grid">
-                <div class="action-card" @click="router.push('/resource')">
+                <div class="action-card" @click="item.action" v-for="item in quickOperationCardList" :key="item.label">
                     <div class="action-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 11V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 5V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
                     </div>
-                    <h3>资源管理器</h3>
-                    <p>管理和浏览所有系统资源</p>
+                    <h3>{{ item.desc }}</h3>
+                    <p>{{ item.desc }}</p>
                 </div>
-                <div class="action-card" @click="showImageMarket">
-                    <div class="action-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
-                            <polyline points="21 15 16 10 5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <h3>图片市场</h3>
-                    <p>浏览和下载高质量图片资源</p>
-                </div>
-                <div class="action-card" @click="showUploadModal">
-                    <div class="action-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <h3>上传资源</h3>
-                    <p>快速上传新的文件和资源</p>
-                </div>
-                <div class="action-card" @click="showSettings">
-                    <div class="action-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12.22 2H11.78C8.26 2 5.19 3.54 3 6.24V11.76C5.19 14.46 8.26 16 11.78 16H12.22C15.74 16 18.81 14.46 21 11.76V6.24C18.81 3.54 15.74 2 12.22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M15.31 18.9C16.04 18.63 16.68 18.06 17.09 17.33C18.34 15.18 19 12.79 19 10.31C19 9.55 18.82 8.81 18.48 8.15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M5 10.31C5 12.79 5.66 15.18 6.91 17.33C7.32 18.06 7.96 18.63 8.69 18.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 22C13.79 22 15.42 21.22 16.5 19.94" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 2V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <h3>系统设置</h3>
-                    <p>自定义您的使用体验</p>
-                </div>
+
             </div>
         </section>
 
@@ -334,8 +244,10 @@ const formatTime = (timestamp: number) => {
                 <div class="activity-list" :class="{ loading: !recentActivities.length }">
                     <div v-for="activity in recentActivities" :key="activity.id" class="activity-item">
                         <div class="activity-icon" :class="activity.type">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 8V12L15 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 8V12L15 15" stroke="white" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
                             </svg>
                         </div>
                         <div class="activity-content">
@@ -346,8 +258,11 @@ const formatTime = (timestamp: number) => {
                     </div>
                     <div v-if="!recentActivities.length && !loadingActivities" class="empty-state">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 8V12L15 15" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 8V12L15 15" stroke="#ccc" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path
+                                d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                                stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         <p>暂无活动记录</p>
                     </div>
@@ -361,7 +276,8 @@ const formatTime = (timestamp: number) => {
                     <button class="view-all" @click="showAllAnnouncements">查看全部</button>
                 </div>
                 <div class="announcement-list" :class="{ loading: !announcements.length }">
-                    <div v-for="announcement in announcements" :key="announcement.id" class="announcement-item" :class="{ important: announcement.isImportant }">
+                    <div v-for="announcement in announcements" :key="announcement.id" class="announcement-item"
+                        :class="{ important: announcement.isImportant }">
                         <div class="announcement-header">
                             <h3 class="announcement-title">{{ announcement.title }}</h3>
                             <div class="announcement-date">{{ announcement.date }}</div>
@@ -374,50 +290,25 @@ const formatTime = (timestamp: number) => {
                     </div>
                     <div v-if="!announcements.length && !loadingAnnouncements" class="empty-state">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10.293 3.293L1.82 11.764C1.317 12.267 1.317 13.001 1.82 13.504L10.293 21.976C10.796 22.479 11.53 22.479 12.033 21.976L22.18 11.829C22.683 11.326 22.683 10.592 22.18 10.089L13.707 1.617C13.204 1.114 12.47 1.114 11.967 1.617L10.293 3.293Z" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 8V12" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 16H12.01" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path
+                                d="M10.293 3.293L1.82 11.764C1.317 12.267 1.317 13.001 1.82 13.504L10.293 21.976C10.796 22.479 11.53 22.479 12.033 21.976L22.18 11.829C22.683 11.326 22.683 10.592 22.18 10.089L13.707 1.617C13.204 1.114 12.47 1.114 11.967 1.617L10.293 3.293Z"
+                                stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M12 8V12" stroke="#ccc" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M12 16H12.01" stroke="#ccc" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
                         </svg>
                         <p>暂无公告信息</p>
                     </div>
                 </div>
             </section>
         </div>
-
-        <!-- 上传资源模态框 -->
-        <el-dialog v-model="uploadModalVisible" title="上传新资源" width="600px">
-            <div class="upload-container">
-                <div class="upload-area" :class="{ dragging: isDragging }">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M17 8L12 3L7 8" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M12 3V15" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <p>拖放文件到此处，或 <span class="browse-link">浏览文件</span></p>
-                    <input type="file" class="file-input" @change="handleFileUpload" multiple/>
-                </div>
-                <div class="upload-options">
-                    <el-select v-model="resourceType" placeholder="选择资源类型">
-                        <el-option label="图片" value="image"></el-option>
-                        <el-option label="文档" value="document"></el-option>
-                        <el-option label="视频" value="video"></el-option>
-                        <el-option label="其他" value="other"></el-option>
-                    </el-select>
-                    <el-input v-model="resourceTag" placeholder="添加标签（可选）"></el-input>
-                </div>
-            </div>
-            <template #footer>
-                <button class="secondary-button" @click="uploadModalVisible = false">取消</button>
-                <button class="primary-button" @click="confirmUpload">确认上传</button>
-            </template>
-        </el-dialog>
     </div>
 </template>
 
 
 
 <style lang="less" scoped>
-
 .super-cloud-home {
     padding: 20px 100px;
     background-color: #f8f9fb;
@@ -627,7 +518,8 @@ const formatTime = (timestamp: number) => {
     margin-bottom: 30px;
 }
 
-.activity-section, .announcement-section {
+.activity-section,
+.announcement-section {
     background-color: white;
     border-radius: 12px;
     padding: 20px;
@@ -911,9 +803,17 @@ const formatTime = (timestamp: number) => {
 
 /* 动画 */
 @keyframes pulse {
-    0% { opacity: 0.5; }
-    50% { opacity: 0.8; }
-    100% { opacity: 0.5; }
+    0% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+
+    100% {
+        opacity: 0.5;
+    }
 }
 
 /* 响应式设计 */
@@ -931,7 +831,9 @@ const formatTime = (timestamp: number) => {
         }
     }
 
-    .overview-grid, .actions-grid, .dashboard-grid {
+    .overview-grid,
+    .actions-grid,
+    .dashboard-grid {
         grid-template-columns: 1fr;
     }
 
@@ -957,11 +859,13 @@ const formatTime = (timestamp: number) => {
         font-size: 16px;
     }
 
-    .stat-card, .action-card {
+    .stat-card,
+    .action-card {
         padding: 15px;
     }
 
-    .activity-section, .announcement-section {
+    .activity-section,
+    .announcement-section {
         padding: 15px;
     }
 }
