@@ -130,6 +130,76 @@ importers:
 
   apps/super-cloud-root-app: {}
 
+  apps/super-cloud-root-server:
+    dependencies:
+      '@koa/cors':
+        specifier: ^5.0.0
+        version: 5.0.0
+      '@koa/router':
+        specifier: ^13.1.1
+        version: 13.1.1
+      dotenv:
+        specifier: ^17.2.0
+        version: 17.2.0
+      fs-extra:
+        specifier: ^11.3.0
+        version: 11.3.0
+      glob:
+        specifier: ^11.0.3
+        version: 11.0.3
+      koa:
+        specifier: ^3.0.0
+        version: 3.0.0
+      koa-body:
+        specifier: ^6.0.1
+        version: 6.0.1
+      koa-bodyparser:
+        specifier: ^4.4.1
+        version: 4.4.1
+      koa-mount:
+        specifier: ^4.2.0
+        version: 4.2.0
+      koa-static:
+        specifier: ^5.0.0
+        version: 5.0.0
+      mysql2:
+        specifier: ^3.14.2
+        version: 3.14.2
+      openai:
+        specifier: ^5.10.2
+        version: 5.10.2(zod@3.25.76)
+    devDependencies:
+      '@types/fs-extra':
+        specifier: ^11.0.4
+        version: 11.0.4
+      '@types/koa':
+        specifier: ^2.15.0
+        version: 2.15.0
+      '@types/koa-bodyparser':
+        specifier: ^4.3.12
+        version: 4.3.12
+      '@types/koa-mount':
+        specifier: ^4.0.5
+        version: 4.0.5
+      '@types/koa-static':
+        specifier: ^4.0.4
+        version: 4.0.4
+      '@types/koa__cors':
+        specifier: ^5.0.0
+        version: 5.0.0
+      '@types/koa__router':
+        specifier: ^12.0.4
+        version: 12.0.4
+      '@types/node':
+        specifier: ^24.0.14
+        version: 24.0.15
+      nodemon:
+        specifier: ^3.1.10
+        version: 3.1.10
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@24.0.15)(typescript@5.8.3)
+
   apps/super-login-server:
     dependencies:
       '@koa/cors':
@@ -1445,6 +1515,18 @@ packages:
 
   once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
+
+  openai@5.10.2:
+    resolution: {integrity: sha512-n+vi74LzHtvlKcDPn9aApgELGiu5CwhaLG40zxLTlFQdoSJCLACORIPC2uVQ3JEYAbqapM+XyRKFy2Thej7bIw==}
+    hasBin: true
+    peerDependencies:
+      ws: ^8.18.0
+      zod: ^3.23.8
+    peerDependenciesMeta:
+      ws:
+        optional: true
+      zod:
+        optional: true
 
   package-json-from-dist@1.0.1:
     resolution: {integrity: sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw==}
@@ -3187,6 +3269,10 @@ snapshots:
   once@1.4.0:
     dependencies:
       wrappy: 1.0.2
+
+  openai@5.10.2(zod@3.25.76):
+    optionalDependencies:
+      zod: 3.25.76
 
   package-json-from-dist@1.0.1: {}
 

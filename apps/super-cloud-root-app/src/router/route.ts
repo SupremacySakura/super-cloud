@@ -1,5 +1,6 @@
 import type { RouteRecordRaw } from "vue-router";
 import { resourceRoutes } from "../views/ResourceStorage/route";
+import { AIRoutes } from "../views/FreeAIHub/route";
 import type { NavItem } from "../types/router";
 import MainView from '../layouts/Main.vue'
 const routes: RouteRecordRaw[] = [
@@ -27,6 +28,16 @@ const routes: RouteRecordRaw[] = [
                     id: 2,
                     title: '资源管理助手'
                 }
+            },
+            {
+                path: '/AI',
+                name: 'AI',
+                component: () => import('../views/FreeAIHub/FreeAIHub.vue'),
+                children: AIRoutes,
+                meta: {
+                    id: 3,
+                    title: 'AI助手'
+                }
             }
         ]
     },
@@ -34,7 +45,7 @@ const routes: RouteRecordRaw[] = [
         path: '/fullscreen',
         name: 'fullscreen',
         component: () => import('../layouts/FullScreen.vue'),
-        children:[
+        children: [
             {
                 path: '/login',
                 name: 'login',
@@ -44,8 +55,8 @@ const routes: RouteRecordRaw[] = [
                 }
             },
             {
-                path:'/register',
-                name:'register',
+                path: '/register',
+                name: 'register',
                 component: () => import('../views/Register/Register.vue'),
                 meta: {
                     text: '注册'
@@ -53,7 +64,7 @@ const routes: RouteRecordRaw[] = [
             }
         ]
     },
-   
+
 ]
 const rootNavBar: NavItem[] = routes[0].children?.map((item => {
     const newItem: NavItem = {

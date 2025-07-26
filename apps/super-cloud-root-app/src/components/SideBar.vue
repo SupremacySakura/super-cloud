@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import { resourceSideBar } from '../route';
 import { useRouter } from 'vue-router';
 import { useRoute } from 'vue-router';
+import type { NavItem } from '../types/router';
 const router = useRouter();
 const route = useRoute();
+defineProps<{ sideBarList: NavItem[], title: string }>();
 </script>
 
 <template>
     <div class="container">
         <header class="header">
-            <h2>资源管理助手</h2>
+            <h2>{{ title }}</h2>
         </header>
         <ul>
-            <li v-for="(item) of resourceSideBar" :key="item.path" :class="{ active: item.path === route.path }"
+            <li v-for="(item) of sideBarList" :key="item.path" :class="{ active: item.path === route.path }"
                 @click="router.push(item.path)">
                 {{ item.text }}
             </li>

@@ -8,9 +8,10 @@ import { sideBarList } from './route'
     <div class="common-layout">
         <el-container style="height: 100%;">
             <el-aside width="200px">
-                <SideBar :sideBarList="sideBarList" title="资源管理助手"></SideBar>
+                <SideBar :sideBarList="sideBarList" title="AI集合体"></SideBar>
             </el-aside>
-            <el-main style="padding: 0; max-width: calc(100vw - 200px); overflow-x: hidden; overflow-y: auto;">
+            <el-main style="padding: 0; max-width: calc(100vw - 200px); overflow: hidden;"
+                class="hide-scrollbar">
                 <RouterView></RouterView>
             </el-main>
         </el-container>
