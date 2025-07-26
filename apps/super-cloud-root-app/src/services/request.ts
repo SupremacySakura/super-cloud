@@ -3,7 +3,7 @@ import { useUserStore } from "../stores/user"
 import { storeToRefs } from 'pinia'
 // 登录请求
 const loginRequest = axios.create({
-  baseURL: 'http://localhost:3001',
+  baseURL: import.meta.env.MYAPP_LOGIN_BASE_URL,
   timeout: 10000,//请求超时时间
   withCredentials: true,
   headers: {
@@ -45,7 +45,7 @@ loginRequest.interceptors.response.use(
 )
 // 资源管理器请求
 const rootRequest = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: import.meta.env.MYAPP_BASE_URL,
   timeout: 10000,//请求超时时间
   withCredentials: true,
   headers: {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { ElMessage, ElSelect, ElOption, ElSwitch, ElInput, ElUpload } from 'element-plus';
 import type { Message, Model } from '../../../types/ai';
 import { getModels, postMessage } from '../../../services/apis/ai';
@@ -81,6 +81,9 @@ onMounted(async () => {
     const res = await getModels();
     models.value = res.data.data
     model.value = models.value[0].value
+});
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeyPress);
 });
 </script>
 
