@@ -3,7 +3,7 @@ import Koa from 'koa'
 import router from './routes'
 import cors from '@koa/cors'
 import bodyParser from 'koa-bodyparser'
-import { requestLogger,responseLogger } from './middleware/logger'
+import { requestLogger, responseLogger } from './middleware/logger'
 const app = new Koa()
 app.use(cors({
     origin: '*', // 允许所有来源，也可以设置为特定域名如 'http://localhost:5173'
@@ -17,7 +17,7 @@ app.use(requestLogger)
 app.use(responseLogger)
 app.use(router.routes())
 app.use(router.allowedMethods())
-const PORT = process.env.PORT||3001
+const PORT = Number(process.env.PORT) || 3001
 app.listen(PORT, () => {
     console.log(`🚀 Server running at http://localhost:${PORT}`)
 })
