@@ -36,15 +36,14 @@ const sendMessage = async () => {
     messages.value.push(userMessage);
     inputContent.value = '';
 
-    // 模拟AI响应
+    // AI响应
     isLoading.value = true;
     try {
         const res = await postMessage(messages.value, model.value);
-        console.log(res)
         // 添加AI响应
         const aiMessage: Message = {
             id: Date.now() + 1,
-            role: 'symstem',
+            role: 'system',
             content: res.data.data,
             time: new Date().toISOString()
         };
@@ -115,7 +114,7 @@ onUnmounted(() => {
                 </div>
                 <div class="message-content">
                     <div class="message-text">{{ message.content }}</div>
-                    <div class="message-time">{{ new Date(message.time).toLocaleTimeString() }}</div>
+                    <div :class="['message-time',message.role]">{{ new Date(message.time).toLocaleTimeString() }}</div>
                 </div>
             </div>
             <div v-if="isLoading" class="loading-indicator">
@@ -239,7 +238,7 @@ onUnmounted(() => {
                 flex-direction: row-reverse;
             }
 
-            &.assistant {
+            &.system {
                 align-self: flex-start;
             }
 
@@ -274,6 +273,9 @@ onUnmounted(() => {
                     color: @text-secondary;
                     align-self: flex-end;
                     margin-top: 4px;
+                    &.system {
+                        align-self: flex-start;
+                    }
                 }
             }
 
@@ -284,7 +286,7 @@ onUnmounted(() => {
                 border-top-right-radius: 4px;
             }
 
-            &.assistant .message-text {
+            &.system .message-text {
                 background-color: @card-bg;
                 color: @text-primary;
                 border: 1px solid @border-color;

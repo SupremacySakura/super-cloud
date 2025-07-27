@@ -46,7 +46,7 @@ loginRequest.interceptors.response.use(
 // 资源管理器请求
 const rootRequest = axios.create({
   baseURL: import.meta.env.MYAPP_BASE_URL,
-  timeout: 10000,//请求超时时间
+  timeout: 100000,//请求超时时间
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json'
