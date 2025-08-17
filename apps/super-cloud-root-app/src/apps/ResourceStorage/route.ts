@@ -12,7 +12,7 @@ export const resourceRoutes: RouteRecordRaw[] = [
     {
         path: '/resource/home',
         name: 'resource-home',
-        component: () => import('./components/Home.vue'),
+        component: () => import('./pages/Home.vue'),
         meta: {
             title: '主页'
         }
@@ -20,7 +20,7 @@ export const resourceRoutes: RouteRecordRaw[] = [
     {
         path: '/resource/imageMarket',
         name: 'resource-imageMarket',
-        component: () => import('./components/ImageMarket.vue'),
+        component: () => import('./pages/ImageMarket.vue'),
         meta: {
             title: '图片市场'
         }
@@ -28,7 +28,7 @@ export const resourceRoutes: RouteRecordRaw[] = [
     {
         path: '/resource/fileManagement',
         name: 'resource-fileManagement',
-        component: () => import('./components/FileManagement.vue'),
+        component: () => import('./pages/FileManagement.vue'),
         meta: {
             title: '文件管理'
         }

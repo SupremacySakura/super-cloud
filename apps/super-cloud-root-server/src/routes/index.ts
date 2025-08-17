@@ -1,7 +1,9 @@
 import Router from '@koa/router'
 import fileRoutes from './file'
 import aiRoutes from './ai'
-const router = new Router()
+const router = new Router({
+    prefix: '/api/super-cloud'
+})
 
 router.get('/', (ctx) => {
     ctx.body = '🚀 欢迎来到 Koa 根路径'

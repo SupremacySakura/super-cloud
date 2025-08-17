@@ -36,7 +36,10 @@ const getUserByUsername = 'select * from users where username = ?'
 // 验证码缓存
 let verificationCodes = new Map()
 const router = new Router({
-    prefix: '/user' // 所有 user 路由都会带上这个前缀
+    prefix: '/api/super-login/user' // 所有路由都会带上这个前缀
+})
+router.get('/', (ctx) => {
+    ctx.body = '🚀 欢迎来到 Koa 根路径'
 })
 // 发送验证码
 router.post('/sendVerificationCode', async (ctx) => {
@@ -64,8 +67,8 @@ router.post('/login', async (ctx) => {
         return
     }
     const userInfo = { ...users[0], password: '' } as UserInfo
-    const sid =await createSession(userInfo)
-    if(!sid){
+    const sid = await createSession(userInfo)
+    if (!sid) {
         ctx.body = ({ message: '登录失败', code: 500 })
         return
     }

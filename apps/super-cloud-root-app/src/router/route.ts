@@ -1,6 +1,6 @@
 import type { RouteRecordRaw } from "vue-router";
-import { resourceRoutes } from "../views/ResourceStorage/route";
-import { AIRoutes } from "../views/FreeAIHub/route";
+import { resourceRoutes } from "../apps/ResourceStorage/route";
+import { AIRoutes } from "../apps/FreeAIHub/route";
 import type { NavItem } from "../types/router";
 import MainView from '../layouts/Main.vue'
 const routes: RouteRecordRaw[] = [
@@ -13,7 +13,7 @@ const routes: RouteRecordRaw[] = [
             {
                 path: '/home',
                 name: 'home',
-                component: () => import('../views/Home/Home.vue'),
+                component: () => import('../apps/Home/Home.vue'),
                 meta: {
                     id: 1,
                     title: '首页'
@@ -22,7 +22,7 @@ const routes: RouteRecordRaw[] = [
             {
                 path: '/resource',
                 name: 'resource',
-                component: () => import('../views/ResourceStorage/ResourceStorage.vue'),
+                component: () => import('../apps/ResourceStorage/ResourceStorage.vue'),
                 children: resourceRoutes,
                 meta: {
                     id: 2,
@@ -32,7 +32,7 @@ const routes: RouteRecordRaw[] = [
             {
                 path: '/AI',
                 name: 'AI',
-                component: () => import('../views/FreeAIHub/FreeAIHub.vue'),
+                component: () => import('../apps/FreeAIHub/FreeAIHub.vue'),
                 children: AIRoutes,
                 meta: {
                     id: 3,
@@ -49,7 +49,7 @@ const routes: RouteRecordRaw[] = [
             {
                 path: '/login',
                 name: 'login',
-                component: () => import('../views/Login/Login.vue'),
+                component: () => import('../apps/Login/Login.vue'),
                 meta: {
                     text: '登录'
                 }
@@ -57,7 +57,7 @@ const routes: RouteRecordRaw[] = [
             {
                 path: '/register',
                 name: 'register',
-                component: () => import('../views/Register/Register.vue'),
+                component: () => import('../apps/Register/Register.vue'),
                 meta: {
                     text: '注册'
                 }

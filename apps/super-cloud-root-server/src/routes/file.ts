@@ -11,7 +11,7 @@ import { authMiddleware } from '../middleware/checkLogin';
 const ROOT_DIR = path.resolve(__dirname, '../files');
 const checkApiUrl = 'http://localhost:3001/user/check'
 const router = new Router({
-    prefix: '/file' // 所有 user 路由都会带上这个前缀
+    prefix: '/api/super-cloud/file' // 所有 user 路由都会带上这个前缀
 })
 // 获取用户有权限访问的文件结构
 router.get('/',authMiddleware(checkApiUrl), async (ctx) => {
