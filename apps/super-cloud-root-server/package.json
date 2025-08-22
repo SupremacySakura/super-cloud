@@ -1,5 +1,5 @@
 {
-  "name": "@super-cloud/resource-storage-server",
+  "name": "@super-cloud/super-cloud-root-app-server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

@@ -8,15 +8,16 @@ import { useUserStore } from '../stores/user';
 import { storeToRefs } from 'pinia';
 import { postLogout } from '../services/apis/login';
 import { ElMessage } from 'element-plus';
+import defaultAvatar from '../../public/avatar.png'
 const { userInfo, sid } = storeToRefs(useUserStore())
-const { setUserInfo,setSid} = useUserStore();
+const { setUserInfo, setSid } = useUserStore();
 const route = useRoute();
 const router = useRouter();
 // 侧边栏
 const drawerOpen = ref(false);
 // 登录状态
 const isLogin = computed(() => {
-  return sid.value && userInfo.value;
+    return sid.value && userInfo.value;
 });
 /**
  * 切换侧边栏
@@ -28,17 +29,17 @@ const handleToggleDrawer = () => {
  * 登出
  */
 const handleLogout = async () => {
-    try{
-       const res = await postLogout();
-       if(res.data.code === 200){
-           ElMessage.success('登出成功');
-       }else{
-         
-           ElMessage.error(`登出失败,强制登出: ${res.data.message}`)
-       }
-    }catch(err){
+    try {
+        const res = await postLogout();
+        if (res.data.code === 200) {
+            ElMessage.success('登出成功');
+        } else {
+
+            ElMessage.error(`登出失败,强制登出: ${res.data.message}`)
+        }
+    } catch (err) {
         ElMessage.error(`登出失败,强制登出: ${err}`)
-    }finally{
+    } finally {
         setUserInfo(null);
         setSid('');
     }
@@ -55,7 +56,7 @@ const handleLogout = async () => {
             </section>
             <section class="title">
                 <h1>
-                    {{rootNavBar.find(item => item.name === route.path.split('/')[1])?.text || 'Super Cloud' }}
+                    {{rootNavBar.find(item => item.name === route.path.split('/')[1])?.text || 'Super Cloud'}}
                 </h1>
                 <cloudSvg style="fill: rgb(122, 160, 2494);width: 50px;height: 100%;"></cloudSvg>
             </section>
@@ -67,7 +68,7 @@ const handleLogout = async () => {
                 <button class="primary-button" @click="router.push('/login')">登录</button>
             </section>
             <section class="user-info" v-else>
-                <img :src="userInfo?.avatar" alt="">
+                <img :src="userInfo?.avatar || defaultAvatar" alt="">
                 <span>{{ userInfo?.username }}</span>
                 <button class="primary-button" @click="handleLogout()">登出</button>
             </section>

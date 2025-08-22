@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { ElMessage, ElSelect, ElOption, ElSwitch, ElInput, ElUpload } from 'element-plus';
-import type { Message, Model } from '../../../types/ai';
-import { getModels, postMessage } from '../../../services/apis/ai';
+import type { Message, Model } from '../../../../types/ai';
+import { getModels, postMessage } from '../../../../services/apis/ai';
 // 消息列表
 const messages = ref<Message[]>([]);
 

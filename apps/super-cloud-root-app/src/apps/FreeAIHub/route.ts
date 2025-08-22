@@ -12,7 +12,7 @@ export const AIRoutes: RouteRecordRaw[] = [
     {
         path: '/AI/home',
         name: 'AI-home',
-        component: () => import('./pages/Home.vue'),
+        component: () => import('./pages/Home/Home.vue'),
         meta: {
             title: '主页'
         }
@@ -20,7 +20,7 @@ export const AIRoutes: RouteRecordRaw[] = [
     {
         path: '/AI/chat',
         name: 'AI-chat',
-        component: () => import('./pages/ChatWithAI.vue'),
+        component: () => import('./pages/ChatWithAI/ChatWithAI.vue'),
         meta: {
             title: '聊天'
         }

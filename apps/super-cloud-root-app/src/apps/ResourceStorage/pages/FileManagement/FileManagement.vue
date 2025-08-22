@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { Document, Folder } from '@element-plus/icons-vue';
-import type { FileItem } from '../../../types/files';
-import { getAllFiles, getFileContent, uploadFile } from '../../../services/apis/resourceStorage';
-import { useUserStore } from '../../../stores/user';
+import type { FileItem } from '../../../../types/files';
+import { getAllFiles, getFileContent, uploadFile } from '../../../../services/apis/resourceStorage';
+import { useUserStore } from '../../../../stores/user';
 import { storeToRefs } from 'pinia';
 import { ElMessage } from 'element-plus';
-import { formatSize,formatTime } from '../../../utils'
+import { formatSize, formatTime } from '../../../../utils'
 const { userInfo } = storeToRefs(useUserStore());
 // 文件树数据（假设由父组件传入或后端加载）
 const fileTree = ref<FileItem[]>([]);

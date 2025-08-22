@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getAllImages } from '../../../services/apis/resourceStorage'
-import type { ImageItem } from '../../../types/files'
+import { getAllImages } from '../../../../services/apis/resourceStorage'
+import type { ImageItem } from '../../../../types/files'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { formatSize } from '../../../utils'
+import { formatSize } from '../../../../utils'
 const images = ref<ImageItem[]>([])
 // 下载图片
 const handleDownload = async (url: string, name: string) => {
@@ -97,6 +97,7 @@ onMounted(async () => {
     padding: 24px;
     background-color: #f4f6f8; // 灰白背景
     height: 100%;
+
     .image-card {
         display: flex;
         flex-direction: column;
@@ -200,15 +201,17 @@ onMounted(async () => {
             }
         }
     }
-        .empty-wrapper {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 60px 20px;
-            color: #94a3b8;
-            .empty-text {
-                font-size: 14px;
-                color: #6b7280;
-            }
+
+    .empty-wrapper {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px 20px;
+        color: #94a3b8;
+
+        .empty-text {
+            font-size: 14px;
+            color: #6b7280;
         }
+    }
 }
 </style>
