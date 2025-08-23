@@ -12,10 +12,13 @@ export const formatSize = (size: number | undefined): string => {
  * 文件时间格式化
  * @param time 时间
  */
-export const formatTime = (time: string | undefined): string => {
+export const formatTime = (time?: string | Date): string => {
     if (!time) return '';
-    const date = new Date(time);
-    return date.toLocaleString('zh-CN', {
+
+    const date = time instanceof Date ? time : new Date(time);
+    if (isNaN(date.getTime())) return ''; // 防止无效日期
+
+    return new Intl.DateTimeFormat('zh-CN', {
         timeZone: 'Asia/Shanghai',
         year: 'numeric',
         month: '2-digit',
@@ -24,5 +27,5 @@ export const formatTime = (time: string | undefined): string => {
         minute: '2-digit',
         second: '2-digit',
         hour12: false,
-    }).replace(/\//g, '-');
-}
+    }).format(date);
+};

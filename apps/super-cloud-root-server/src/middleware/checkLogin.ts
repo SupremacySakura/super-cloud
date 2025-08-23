@@ -1,7 +1,7 @@
 import Koa from 'koa'
 import axios from 'axios'
 
-interface UserInfo {
+export interface UserInfo {
     id: number
     username: string
     email: string
