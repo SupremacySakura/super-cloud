@@ -1,17 +1,30 @@
 <script lang="ts" setup>
-import { ref, onMounted, reactive } from 'vue'
-import { getServer, uploadServer } from '../../../../services/apis/ci-cd'
+import { ref, onMounted, watch } from 'vue'
+import { connectServer, getServer, updateServer, uploadServer } from '../../../../services/apis/ci-cd'
 import type { Server } from '../../../../types/server'
 import { formatTime } from '../../../../utils'
 import defaultServer from '../../../../../public/server.png'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Edit, Monitor, Tickets } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { Edit, Monitor, Tickets, Connection } from '@element-plus/icons-vue'
+import Terminal from '../../../../components/Terminal.vue' // 导入终端组件
 
 // 服务器列表
 const servers = ref<Server[]>([])
-
+const initServer = async () => {
+    try {
+        const res = await getServer()
+        if (res.data.code === 200) {
+            ElMessage.success('获取服务器列表成功')
+            servers.value = res.data.data ?? []
+        }
+    } catch (err) {
+        ElMessage.error('获取服务器列表失败')
+    }
+}
 // 控制对话框显示
 const dialogVisible = ref(false)
+// 控制操作对话框显示
+const operateDialogVisible = ref(false);
 
 // 表单数据
 const form = ref<Partial<Server>>({
@@ -24,18 +37,20 @@ const form = ref<Partial<Server>>({
     passphrase: '',
     description: '',
 })
-
-// 页面加载时获取服务器
-onMounted(async () => {
-    try {
-        const res = await getServer()
-        servers.value = res.data.data ?? []
-        console.log('服务器列表', servers.value)
-    } catch (err) {
-        console.error('获取服务器失败', err)
+watch(() => operateDialogVisible.value, (newValue) => {
+    if (newValue === false) {
+        form.value = {
+            name: '',
+            host: '',
+            port: 22,
+            username: '',
+            password: '',
+            private_key: '',
+            passphrase: '',
+            description: '',
+        }
     }
 })
-
 // 添加服务器
 const addServer = () => {
     if (!form.value.name || !form.value.host || !form.value.username) {
@@ -57,42 +72,68 @@ const addServer = () => {
         updated_at: formatTime(new Date()),
     }
     uploadServer(newServer).then((res) => {
-        console.log(res.data)
-        servers.value.push(newServer)
-        dialogVisible.value = false
-        form.value = { port: 22 } // 重置表单
+        if (+res.data.code === 200) {
+            ElMessage.success('上传成功');
+            initServer()
+            dialogVisible.value = false
+            form.value = { port: 22 } // 重置表单
+        }
     })
 }
-const operateDialogVisible = ref(false);
-const currentServer = ref<any>(null);
+
+
+// 当前操作的服务器
+const currentServer = ref<Server>();
+
+// 操作对话框切换标签
 const activeTab = ref("edit");
 
-const editForm = reactive({
-    name: "",
-    description: "",
-    host: "",
-});
-
-function openDialog(server: any) {
+// 打开操作对话框
+const openDialog = (server: Server) => {
     currentServer.value = server;
-    Object.assign(editForm, server); // 填充表单
+    form.value = server; // 填充表单
     activeTab.value = "edit";
     operateDialogVisible.value = true;
 }
-
-function saveEdit() {
+// 保存编辑
+const saveEdit = async () => {
     if (currentServer.value) {
-        Object.assign(currentServer.value, editForm); // 更新数据
+        const res = await updateServer({ ...currentServer.value, ...form.value })
+        if (res.data.code === 200) {
+            initServer()
+            ElMessage.success(res.data.message)
+        } else {
+            ElMessage.error(res.data.message)
+        }
     }
-    dialogVisible.value = false;
+    operateDialogVisible.value = false;
+    currentServer.value = undefined;
+    form.value = {}
 }
+
+// 测试连接测试结果
+const testResult = ref<string[]>([]);
+
+// 测试连接
+const testConnection = async (server?: Server, model: 'password' | 'privateKey' = 'password') => {
+    if (!server) {
+        return
+    }
+    const res = await connectServer(server, model)
+    testResult.value.push(res.data.data)
+}
+// 页面加载时获取服务器
+onMounted(async () => {
+    initServer()
+})
+
 </script>
 
 <template>
     <div class="server-page">
         <!-- 顶部操作栏 -->
         <div class="toolbar">
-            <button class="add-btn" @click="dialogVisible = true">添加服务器</button>
+            <button class="primary-button" @click="dialogVisible = true">添加服务器</button>
         </div>
 
         <!-- 卡片列表 -->
@@ -112,7 +153,7 @@ function saveEdit() {
 
                 <!-- 配置信息 -->
                 <div class="card-body">
-                    <p>{{server.description}}</p>
+                    <p>{{ server.description }}</p>
                     <p>IPv4: {{ server.host }}</p>
                 </div>
 
@@ -125,48 +166,78 @@ function saveEdit() {
         </div>
 
         <!-- 添加服务器对话框 -->
-        <div v-if="dialogVisible" class="dialog-overlay">
-            <div class="dialog">
-                <h2>添加服务器</h2>
-                <form @submit.prevent="addServer">
-                    <label>服务器名称：<input v-model="form.name" required /></label>
-                    <label>IP/域名：<input v-model="form.host" required /></label>
-                    <label>端口：<input type="number" v-model="form.port" /></label>
-                    <label>用户名：<input v-model="form.username" required /></label>
-                    <label>密码：<input type="password" v-model="form.password" /></label>
-                    <label>私钥：<textarea v-model="form.private_key"></textarea></label>
-                    <label>私钥密码：<input v-model="form.passphrase" /></label>
-                    <label>描述：<textarea v-model="form.description"></textarea></label>
-                    <div class="actions">
-                        <button type="button" @click="dialogVisible = false">取消</button>
-                        <button type="submit">确认</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <el-dialog v-model="dialogVisible" title="添加服务器" width="600px" class="add-server-dialog">
+            <el-form :model="form" label-width="100px" label-position="left">
+                <div class="form-grid">
+                    <el-form-item label="服务器名称" required>
+                        <el-input v-model="form.name" placeholder="请输入服务器名称" size="large" />
+                    </el-form-item>
+                    <el-form-item label="IP/域名" required>
+                        <el-input v-model="form.host" placeholder="请输入服务器地址" size="large" />
+                    </el-form-item>
+                    <el-form-item label="端口">
+                        <el-input-number v-model="form.port" :min="1" :max="65535" size="large" />
+                    </el-form-item>
+                    <el-form-item label="用户名" required>
+                        <el-input v-model="form.username" placeholder="请输入用户名" size="large" />
+                    </el-form-item>
+                    <el-form-item label="密码">
+                        <el-input v-model="form.password" type="password" placeholder="请输入密码" show-password
+                            size="large" />
+                    </el-form-item>
+                    <el-form-item label="私钥密码">
+                        <el-input v-model="form.passphrase" type="password" placeholder="请输入私钥密码" show-password
+                            size="large" />
+                    </el-form-item>
+                </div>
+
+                <el-form-item label="私钥">
+                    <el-input v-model="form.private_key" type="textarea" :rows="3" placeholder="请输入SSH私钥"
+                        resize="none" />
+                </el-form-item>
+
+                <el-form-item label="描述">
+                    <el-input v-model="form.description" type="textarea" :rows="2" placeholder="请输入服务器描述"
+                        resize="none" />
+                </el-form-item>
+            </el-form>
+
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="dialogVisible = false" size="large">取消</el-button>
+                    <el-button type="primary" @click="addServer" size="large">确认添加</el-button>
+                </span>
+            </template>
+        </el-dialog>
         <!-- 操作对话框 -->
         <el-dialog v-model="operateDialogVisible" width="700px" :title="currentServer?.name + ' - 操作'">
             <div class="dialog-container">
                 <!-- 左侧侧边栏 -->
-                <el-menu 
-                    class="side-menu" 
-                    :default-active="activeTab" 
-                    @select="activeTab = $event"
-                    background-color="#f5f7fa"
-                    text-color="#303133"
-                    active-text-color="#409eff"
-                >
+                <el-menu class="side-menu" :default-active="activeTab" @select="activeTab = $event"
+                    background-color="#f5f7fa" text-color="#303133" active-text-color="#409eff">
                     <el-menu-item index="edit">
-                        <el-icon><Edit /></el-icon>
+                        <el-icon>
+                            <Edit />
+                        </el-icon>
                         <span>编辑服务器信息</span>
                     </el-menu-item>
                     <el-menu-item index="monitor">
-                        <el-icon><Monitor /></el-icon>
+                        <el-icon>
+                            <Monitor />
+                        </el-icon>
                         <span>监控信息</span>
                     </el-menu-item>
                     <el-menu-item index="logs">
-                        <el-icon><Tickets /></el-icon>
+                        <el-icon>
+                            <Tickets />
+                        </el-icon>
                         <span>运行日志</span>
+                    </el-menu-item>
+                    <el-menu-item index="connect">
+                        <el-icon>
+                            <Connection />
+                        </el-icon>
+                        <span>连接</span>
                     </el-menu-item>
                 </el-menu>
 
@@ -174,27 +245,42 @@ function saveEdit() {
                 <div class="tab-content">
                     <div v-if="activeTab === 'edit'" class="tab-pane">
                         <h3>编辑服务器信息</h3>
-                        <el-form :model="editForm" label-width="100px">
+                        <el-form :model="form" label-width="100px">
                             <el-form-item label="名称">
-                                <el-input v-model="editForm.name" />
+                                <el-input v-model="form.name" />
                             </el-form-item>
                             <el-form-item label="描述">
-                                <el-input type="textarea" v-model="editForm.description" />
+                                <el-input type="textarea" v-model="form.description" />
                             </el-form-item>
                             <el-form-item label="IPv4">
-                                <el-input v-model="editForm.host" />
+                                <el-input v-model="form.host" />
+                            </el-form-item>
+                            <el-form-item label="端口">
+                                <el-input v-model="form.port" />
+                            </el-form-item>
+                            <el-form-item label="用户名">
+                                <el-input v-model="form.username" />
                             </el-form-item>
                         </el-form>
                     </div>
 
                     <div v-else-if="activeTab === 'monitor'" class="tab-pane">
                         <h3>监控信息</h3>
-                        <p>这里展示服务器监控数据...</p>
+                        <Terminal></Terminal>
                     </div>
 
                     <div v-else-if="activeTab === 'logs'" class="tab-pane">
                         <h3>运行日志</h3>
-                        <p>这里展示日志内容...</p>
+                        <Terminal></Terminal>
+                    </div>
+                    <div v-else-if="activeTab === 'connect'" class="tab-pane">
+                        <h3>测试连接</h3>
+                        <Terminal :content="testResult" title="连接测试" placeholder="点击'测试连接'按钮开始测试..." />
+                        <div class="terminal-actions">
+                            <el-button type="primary" @click="testConnection(currentServer)">测试连接(密码)</el-button>
+                            <el-button type="primary"
+                                @click="testConnection(currentServer, 'privateKey')">测试连接(秘钥)</el-button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -214,15 +300,6 @@ function saveEdit() {
 
 .toolbar {
     margin-bottom: 20px;
-
-    .add-btn {
-        padding: 8px 16px;
-        background: #409eff;
-        border: none;
-        color: #fff;
-        border-radius: 4px;
-        cursor: pointer;
-    }
 }
 
 .card-list {
@@ -306,6 +383,7 @@ function saveEdit() {
         }
     }
 }
+
 .dialog-container {
     display: flex;
     height: 400px;
@@ -317,20 +395,20 @@ function saveEdit() {
 .side-menu {
     width: 180px;
     border-right: 1px solid #ebeef5;
-    
+
     :deep(.el-menu-item) {
         height: 50px;
         line-height: 50px;
-        
+
         &.is-active {
             background-color: #ecf5ff !important;
             border-right: 3px solid #409eff;
         }
-        
+
         &:hover {
             background-color: #e6f0ff;
         }
-        
+
         .el-icon {
             margin-right: 8px;
             width: 16px;
@@ -354,12 +432,13 @@ function saveEdit() {
         border-bottom: 1px solid #ebeef5;
         color: #303133;
     }
-    
+
     p {
         color: #606266;
         font-size: 14px;
     }
 }
+
 
 // 覆盖 Element Plus 样式
 :deep(.el-dialog__body) {
@@ -368,5 +447,127 @@ function saveEdit() {
 
 :deep(.el-dialog__header) {
     border-bottom: 1px solid #ebeef5;
+}
+
+.terminal-actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+// 添加服务器对话框样式
+:deep(.add-server-dialog) {
+    .el-dialog {
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+        &__header {
+            background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+            margin: 0;
+            padding: 20px 24px;
+
+            .el-dialog__title {
+                color: #fff;
+                font-size: 18px;
+                font-weight: 600;
+            }
+
+            .el-dialog__headerbtn {
+                top: 20px;
+
+                .el-dialog__close {
+                    color: #fff;
+
+                    &:hover {
+                        color: #e6f7ff;
+                    }
+                }
+            }
+        }
+
+        &__body {
+            padding: 24px;
+            background: #f8fafc;
+        }
+
+        &__footer {
+            padding: 16px 24px;
+            background: #f5f7fa;
+            border-top: 1px solid #e4e7ed;
+        }
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .el-form-item {
+        margin-bottom: 16px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        .el-form-item__label {
+            color: #606266;
+            font-weight: 500;
+        }
+
+        .el-input,
+        .el-textarea,
+        .el-input-number {
+            .el-input__wrapper {
+                background: #fff;
+                border: 1px solid #dcdfe6;
+                border-radius: 6px;
+                box-shadow: none;
+
+                &:hover {
+                    border-color: #c0c4cc;
+                }
+
+                &.is-focus {
+                    border-color: #409eff;
+                    box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+                }
+            }
+        }
+    }
+
+    .dialog-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+
+        .el-button {
+            min-width: 100px;
+            border-radius: 6px;
+
+            &.el-button--default {
+                border-color: #dcdfe6;
+                color: #606266;
+
+                &:hover {
+                    border-color: #409eff;
+                    color: #409eff;
+                    background: #ecf5ff;
+                }
+            }
+
+            &.el-button--primary {
+                background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+                border: none;
+
+                &:hover {
+                    background: linear-gradient(135deg, #66b1ff 0%, #409eff 100%);
+                    box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+                }
+            }
+        }
+    }
 }
 </style>
