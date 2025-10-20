@@ -1,7 +1,6 @@
 import type { RouteRecordRaw } from "vue-router";
 import { resourceRoutes } from "../apps/ResourceStorage/route";
 import { AIRoutes } from "../apps/FreeAIHub/route";
-import { CICDRoutes } from "../apps/CICDPlatform/route";
 import type { NavItem } from "../types/router";
 import MainView from '../layouts/Main.vue'
 const routes: RouteRecordRaw[] = [
@@ -40,16 +39,6 @@ const routes: RouteRecordRaw[] = [
                     title: 'AI助手'
                 }
             },
-            {
-                path:'/ci-cd',
-                name: 'ci-cd',
-                component: () => import('../apps/CICDPlatform/CICDPlatform.vue'),
-                children:CICDRoutes,
-                meta: {
-                    id: 4,
-                    title: 'CI/CD'
-                }
-            }
         ]
     },
     {

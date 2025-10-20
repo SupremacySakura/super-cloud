@@ -1,0 +1,28 @@
+{
+    "compilerOptions": {
+        "declaration": true, // 生成 .d.ts 文件
+        "declarationDir": "./dist/types", // 声明文件输出目录
+        "rootDir": "./src", // 源码根目录
+        "sourceMap": true, // 生成 source map 文件
+        "target": "es2020", // 编译目标版本（ES2020 或更高）
+        "module": "ESNext",
+        "moduleResolution": "node", // 使用 nodenext 模块解析策略
+        "strict": true, // 启用所有严格的类型检查选项
+        "esModuleInterop": true, // 允许从 ES 模块中引入 CommonJS 模块
+        "skipLibCheck": true, // 跳过库文件的类型检查以加快编译速度
+        "forceConsistentCasingInFileNames": true, // 强制文件名大小写一致
+        "baseUrl": "./", // 设置 baseUrl 为根目录
+        "paths": {
+            // 如果你需要添加路径别名，可以在这里配置
+        }
+    },
+    "include": [
+        "src"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "dist-cjs",
+        "dist-esm"
+    ]
+}
