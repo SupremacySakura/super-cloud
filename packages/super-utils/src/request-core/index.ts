@@ -1,14 +1,22 @@
 import { RequestCore } from "./core/RequestCore"
-import type { Requester } from "./interfaces/Requester"
-import type { RequestConfig } from "./types/RequestConfig"
-import type { Response } from "./types/Response"
-
+import type { Requester,RequestPlugin } from "./interfaces"
+import type {
+    RequestConfig,
+    Response,
+    GlobalCacheOptions,
+    RequestCacheOptions
+} from "./types"
+import { useCachePlugin } from "./plugins"
 export type {
     Requester,
     RequestConfig,
-    Response
+    Response,
+    GlobalCacheOptions,
+    RequestCacheOptions,
+    RequestPlugin
 }
 
 export {
-    RequestCore
+    RequestCore,
+    useCachePlugin
 }

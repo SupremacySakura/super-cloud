@@ -29,8 +29,17 @@
   "author": "yxzq",
   "license": "ISC",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.8",
+    "@rollup/plugin-node-resolve": "^16.0.3",
     "rimraf": "^6.0.1",
     "rollup": "^4.52.5",
+    "rollup-plugin-dts": "^6.2.3",
     "rollup-plugin-typescript2": "^0.36.0"
+  },
+  "dependencies": {
+    "axios": "^1.10.0"
+  },
+  "peerDependencies": {
+    "axios": "^1.10.0"
   }
 }

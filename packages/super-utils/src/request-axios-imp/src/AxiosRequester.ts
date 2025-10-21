@@ -1,10 +1,25 @@
-import axios from 'axios'
-import { Requester } from '../../request-core/interfaces/Requester'
+import axios, { AxiosInstance } from 'axios'
+import { RequestConfig, Response, Requester } from '../../request-core/index'
 
-export const AxiosRequester: Requester = {
-    request: (config) => axios.request(config),
-    get: (url, config) => axios.get(url, config),
-    post: (url, data, config) => axios.post(url, data, config),
-    put: (url, data, config) => axios.put(url, data, config),
-    delete: (url, config) => axios.delete(url, config),
+
+export class AxiosRequester implements Requester {
+    private axiosInstance: AxiosInstance
+    request<T = any>(config: RequestConfig): Promise<Response<T>> {
+        return this.axiosInstance.request(config)
+    }
+    get<T = any>(url: string, config?: Omit<RequestConfig, 'url' | 'method'>): Promise<Response<T>> {
+        return this.axiosInstance.get(url, config)
+    }
+    post<T = any>(url: string, data?: any, config?: Omit<RequestConfig, 'url' | 'method'>): Promise<Response<T>> {
+        return this.axiosInstance.post(url, data, config)
+    }
+    put<T = any>(url: string, data?: any, config?: Omit<RequestConfig, 'url' | 'method'>): Promise<Response<T>> {
+        return this.axiosInstance.put(url, data, config)
+    }
+    delete<T = any>(url: string, config?: Omit<RequestConfig, 'url' | 'method'>): Promise<Response<T>> {
+        return this.axiosInstance.delete(url, config)
+    }
+    constructor() {
+        this.axiosInstance = axios.create()
+    }
 }
