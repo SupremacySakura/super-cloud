@@ -12,10 +12,15 @@
         "stripInternal": true,
         "skipLibCheck": true,
         "sourceMap": true,
-        "baseUrl": "."
+        "baseUrl": ".",
+        "typeRoots": [
+            "./types",
+            "./node_modules/@types"
+        ]
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "src/request-core/plugins/**/*.d.ts"
     ],
     "exclude": [
         "dist",

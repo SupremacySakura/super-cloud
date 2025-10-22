@@ -1,4 +1,4 @@
-import { useCachePlugin } from "./useCachePlugin"
+import { useCachePlugin } from "./cache-plugin/useCachePlugin"
 export {
     useCachePlugin
 }

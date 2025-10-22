@@ -1,9 +1,12 @@
 import { Requester, RequestPlugin } from "../interfaces"
 import { RequestConfig, Response } from "../types"
 import { isResponse } from '../utils'
+/**
+ * 请求核心
+ */
 export class RequestCore {
-    private requester: Requester
-    private requestPlugins: RequestPlugin[] = []
+    private requester: Requester  // 底层请求实现
+    private requestPlugins: RequestPlugin[] = []  // 插件列表
     /**
      * 插件注册
      * @param plugin 插件
@@ -11,14 +14,24 @@ export class RequestCore {
     use = (plugin: RequestPlugin) => {
         this.requestPlugins.push(plugin)
     }
-
+    /**
+     * 弹出插件(弹出相同引用插件)
+     * @param plugin 插件
+     */
+    eject = (plugin: RequestPlugin) => {
+        this.requestPlugins = this.requestPlugins.filter((item) => item !== plugin)
+    }
+    /**
+     * 发起请求
+     * @param config 请求配置
+     * @returns 
+     */
     request = async <T = any>(config: RequestConfig): Promise<Response<T>> => {
         try {
             // 1.执行所有 beforeRequest
             for (const plugin of this.requestPlugins) {
                 if (plugin.beforeRequest) {
                     let result = await plugin.beforeRequest<T>(config)
-                    console.log(isResponse(result))
                     if (isResponse(result)) {
                         // 短路
                         for (const plugin of this.requestPlugins) {

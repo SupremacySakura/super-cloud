@@ -1,4 +1,4 @@
-import { GlobalCacheOptions, RequestCacheOptions } from "./CacheOptions"
+import { GlobalCacheOptions, RequestCacheOptions } from "../plugins/cache-plugin/CacheOptions"
 
 export type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD'
 /**
@@ -11,6 +11,4 @@ export interface RequestConfig {
     params?: Record<string, any>
     data?: any
     timeout?: number
-
-    // cacheOptions?: RequestCacheOptions
 }

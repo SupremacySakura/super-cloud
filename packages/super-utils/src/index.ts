@@ -1,24 +1,7 @@
-import type {
-    Requester,
-    RequestConfig,
-    Response,
-    GlobalCacheOptions,
-    RequestCacheOptions,
-    RequestPlugin
-} from "./request-core/index"
+export type * from './request-core'
 import {
     RequestCore,
     useCachePlugin
 } from "./request-core/index"
-import { AxiosRequester } from "./request-axios-imp/index"
-
-export type {
-    Requester,
-    RequestConfig,
-    Response,
-    GlobalCacheOptions,
-    RequestCacheOptions,
-    RequestPlugin
-}
-
+import { AxiosRequester } from "./request-axios-imp"
 export { RequestCore, AxiosRequester, useCachePlugin }

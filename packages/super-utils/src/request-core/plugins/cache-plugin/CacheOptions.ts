@@ -1,4 +1,4 @@
-import { RequestConfig } from "./RequestConfig"
+import { RequestConfig } from "../../types/RequestConfig"
 
 export interface RequestCacheOptions {
     useCache?: boolean  // 是否开启缓存

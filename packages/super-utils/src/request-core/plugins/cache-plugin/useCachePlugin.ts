@@ -1,6 +1,12 @@
-import { RequestPlugin } from "../interfaces"
-import { RequestConfig, Response, GlobalCacheOptions } from "../types"
-export const useCachePlugin = (options: GlobalCacheOptions): RequestPlugin => {
+import { RequestPlugin } from "../../interfaces"
+import { RequestConfig, Response, GlobalCacheOptions } from "../../types"
+
+/**
+ * 创建缓存插件
+ * @param options 缓存配置
+ * @returns 缓存插件
+ */
+export const useCachePlugin = (options: GlobalCacheOptions): RequestPlugin<() => void> => {
     const {
         cacheTTL = 60 * 1000,
         getCacheKey,
@@ -10,7 +16,7 @@ export const useCachePlugin = (options: GlobalCacheOptions): RequestPlugin => {
         maxCacheSize,
     } = options
 
-    const cacheMap = new Map<string, { data: any, timestamp: number, cacheTTL: number }>()
+    const cacheMap = new Map<string, { data: Response<any>, timestamp: number, cacheTTL: number }>()
     // 默认缓存键生成逻辑（保持不变）
     const defaultGetCacheKey = (config: RequestConfig): string => {
         const url = config.url || ''
@@ -46,6 +52,7 @@ export const useCachePlugin = (options: GlobalCacheOptions): RequestPlugin => {
         }
     }
     return {
+        name: 'cache-plugin',
         beforeRequest<T>(config: RequestConfig) {
             const useCache = typeof config.cacheOptions?.useCache !== 'undefined' ? config.cacheOptions?.useCache : globalUseCache
             const resultGetCacheKey = config.cacheOptions?.getCacheKey ?? getCacheKey ?? defaultGetCacheKey
@@ -53,7 +60,7 @@ export const useCachePlugin = (options: GlobalCacheOptions): RequestPlugin => {
                 const key = resultGetCacheKey(config)
                 const cached = cacheMap.get(key);
                 if (cached && Date.now() - cached.timestamp < cached.cacheTTL) {
-                    return { data: cached.data, status: 200, statusText: 'OK', headers: config.headers, config, request: {} } as Response<T>
+                    return cached.data as Response<T>
                 }
             }
             return config
@@ -64,7 +71,7 @@ export const useCachePlugin = (options: GlobalCacheOptions): RequestPlugin => {
             const resultCacheTTL = response.config.cacheOptions?.cacheTTL ?? cacheTTL
             if (useCache) {
                 const key = resultGetCacheKey(response.config)
-                cacheMap.set(key, { data: response.data, timestamp: Date.now(), cacheTTL: resultCacheTTL })
+                cacheMap.set(key, { data: response, timestamp: Date.now(), cacheTTL: resultCacheTTL })
                 if (maxCacheSize && cacheMap.size > maxCacheSize) {
                     const oldestKey = cacheMap.keys().next().value
                     if (typeof oldestKey === 'string') {
@@ -73,6 +80,7 @@ export const useCachePlugin = (options: GlobalCacheOptions): RequestPlugin => {
                 }
             }
             return response
-        }
+        },
+        result: clearCache
     }
 }
