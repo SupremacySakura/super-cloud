@@ -61,7 +61,7 @@ export const useRetryPlugin = (options: RetryOptions, requestCore: RequestCore):
                         __retryCount: currentRetryCount + 1
                     }
                 }
-                const delay = getDelay((newConfig.retryOptions as RetryOptionsWithCount).__retryCount)
+                const delay = getDelay((newConfig.retryOptions as RetryOptionsWithCount)?.__retryCount || 0)
 
                 const response = new Promise((resolve) => {
                     setTimeout(() => {

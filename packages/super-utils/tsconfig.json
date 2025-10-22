@@ -16,7 +16,11 @@
         "typeRoots": [
             "./types",
             "./node_modules/@types"
-        ]
+        ],
+        "allowSyntheticDefaultImports": true,
+        "noEmitOnError": true,
+        "forceConsistentCasingInFileNames": true,
+        "isolatedModules": true
     },
     "include": [
         "src/**/*",

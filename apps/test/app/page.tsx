@@ -1,25 +1,24 @@
 'use client'
-import { RequestCore, AxiosRequester, useCachePlugin, RequestConfig, useRetryPlugin } from '@super-cloud/super-utils'
-import { useEffect, useState } from 'react'
+import { RequestCore, AxiosRequester, useCachePlugin, useRetryPlugin } from '@super-cloud/super-utils'
+import { useEffect } from 'react'
 export default function Home() {
   const axiosRequester = new AxiosRequester()
   const request: RequestCore = new RequestCore(axiosRequester)
-  const [str, setStr] = useState('')
   const cachePlugin = useCachePlugin({})
   const { result } = cachePlugin
-  const retryPlugin = useRetryPlugin({}, request)
+  const retryPlugin = useRetryPlugin({
+    maxRetries: 10
+  }, request)
   request.use(cachePlugin)
   request.use(retryPlugin)
-  const r: RequestConfig = {
-    url: '',
-    cacheOptions: {}
-  }
   const handleRequest = async () => {
-
     request.request({
       url: 'http://localhost:3000/api/aaa',
       cacheOptions: {
         useCache: false,
+      },
+      retryOptions: {
+
       }
     }).then((res: any) => {
       console.log(res)

@@ -4,7 +4,7 @@ export interface RetryOptions {
     getDelay?: (retryCount: number) => number
 }
 
-export type RetryOptionsWithCount = RetryOptions & { __retryCount: number }
+export type RetryOptionsWithCount = RetryOptions & { __retryCount?: number }
 
 // 临时解决方案 用于 plugin 代码提示打包,由于rollup打包工具的一些问题,暂时这样使用
 declare module '../' {
