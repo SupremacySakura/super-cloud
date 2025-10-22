@@ -1,6 +1,6 @@
 import { Requester, RequestPlugin } from "../interfaces"
-import { RequestConfig, Response } from "../types"
-import { isResponse } from '../utils'
+import { RequestConfig, RequestError, Response } from "../types"
+import { isResponse } from "../utils"
 /**
  * 请求核心
  */
@@ -55,11 +55,20 @@ export class RequestCore {
             }
             return Promise.resolve(response)
         } catch (error) {
-            let currentError = error
+            // 参数归一化 由于error可能返回为任意类型不可靠 所以对error进行一些封装
+            let newError: RequestError = {
+                error,
+                config
+            }
+            let currentError = newError
             // 4. 全局错误处理拦截
             for (const plugin of this.requestPlugins) {
                 if (plugin.onError) {
-                    currentError = await plugin.onError(error)
+                    currentError = await plugin.onError(currentError)
+                    if (Object.prototype.hasOwnProperty.call(currentError, 'response')) {
+                        // 如果有这个字段则不为 undefind 直接返回
+                        return Promise.resolve(currentError?.response as Response)
+                    }
                 }
             }
             // 5.如果没有吸收 error 则抛出

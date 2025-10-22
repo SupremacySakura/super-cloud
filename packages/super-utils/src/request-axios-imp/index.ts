@@ -1,4 +1,4 @@
-import { AxiosRequester } from './src/AxiosRequester'
+import { AxiosRequester } from "./src/AxiosRequester"
 
 export {
     AxiosRequester

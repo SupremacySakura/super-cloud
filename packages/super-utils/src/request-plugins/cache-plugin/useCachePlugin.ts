@@ -1,5 +1,6 @@
-import { RequestPlugin } from "../../interfaces"
-import { RequestConfig, Response, GlobalCacheOptions } from "../../types"
+import { RequestPlugin } from "../../request-core/interfaces"
+import { RequestConfig, Response } from "../../request-core/types"
+import { GlobalCacheOptions } from "./CacheOptions"
 
 /**
  * 创建缓存插件
@@ -65,7 +66,7 @@ export const useCachePlugin = (options: GlobalCacheOptions): RequestPlugin<() =>
             }
             return config
         },
-        afterResponse(response) {
+        afterResponse(response: Response) {
             const useCache = typeof response.config.cacheOptions?.useCache !== 'undefined' ? response.config.cacheOptions?.useCache : globalUseCache
             const resultGetCacheKey = response.config.cacheOptions?.getCacheKey ?? getCacheKey ?? defaultGetCacheKey
             const resultCacheTTL = response.config.cacheOptions?.cacheTTL ?? cacheTTL

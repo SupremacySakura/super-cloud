@@ -1,4 +1,4 @@
-import typescript from 'rollup-plugin-typescript2'
+import typescript from '@rollup/plugin-typescript'
 import dts from 'rollup-plugin-dts'
 export default [
     // ESM 输出配置
@@ -7,13 +7,12 @@ export default [
         output: {
             file: 'dist/index.js',  // 输出文件
             format: 'esm',  // 输出格式为 ESM
+            sourcemap: true,
         },
         plugins: [
-            typescript({
-                useTsconfigDeclarationDir: true
-            })
+            typescript()
         ],
-        external: ['axios']
+        external: ['axios'],
     },
     {
         input: 'dist/types/index.d.ts',

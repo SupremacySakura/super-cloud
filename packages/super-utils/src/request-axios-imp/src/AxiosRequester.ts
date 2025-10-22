@@ -1,5 +1,5 @@
-import axios, { AxiosInstance } from 'axios'
-import { RequestConfig, Response, Requester } from '../../request-core'
+import axios, { AxiosInstance } from "axios"
+import { RequestConfig, Response, Requester } from "../../request-core"
 
 
 export class AxiosRequester implements Requester {

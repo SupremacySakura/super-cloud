@@ -1,4 +1,4 @@
-import { GlobalCacheOptions, RequestCacheOptions } from "../plugins/cache-plugin/CacheOptions"
+import { GlobalCacheOptions, RequestCacheOptions } from "../../request-plugins/cache-plugin/CacheOptions"
 
 export type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD'
 /**

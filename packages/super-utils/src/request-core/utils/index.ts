@@ -1,4 +1,4 @@
-import { Response } from '../types'
+import { Response } from "../types"
 
 /**
  * 判断是否是Response<any>类型
