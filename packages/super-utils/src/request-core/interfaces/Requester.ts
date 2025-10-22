@@ -6,8 +6,4 @@ import { RequestConfig, Response } from "../types"
 export interface Requester {
     // 请求方法实现
     request<T = any>(config: RequestConfig): Promise<Response<T>>
-    get<T = any>(url: string, config?: Omit<RequestConfig, 'url' | 'method'>): Promise<Response<T>>
-    post<T = any>(url: string, data?: any, config?: Omit<RequestConfig, 'url' | 'method'>): Promise<Response<T>>
-    put<T = any>(url: string, data?: any, config?: Omit<RequestConfig, 'url' | 'method'>): Promise<Response<T>>
-    delete<T = any>(url: string, config?: Omit<RequestConfig, 'url' | 'method'>): Promise<Response<T>>
 }

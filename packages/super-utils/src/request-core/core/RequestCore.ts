@@ -46,7 +46,7 @@ export class RequestCore {
             }
             // 2.发送请求
             let response = await this.requester.request<T>(config)
-
+            
             // 3.执行所有 afterRequest
             for (const plugin of this.requestPlugins) {
                 if (plugin.afterResponse) {

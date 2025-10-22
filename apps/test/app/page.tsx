@@ -1,9 +1,10 @@
 'use client'
-import { RequestCore, AxiosRequester, useCachePlugin, useRetryPlugin } from '@super-cloud/super-utils'
+import { RequestCore, AxiosRequester, useCachePlugin, useRetryPlugin, FetchRequester } from '@super-cloud/super-utils'
 import { useEffect } from 'react'
 export default function Home() {
   const axiosRequester = new AxiosRequester()
-  const request: RequestCore = new RequestCore(axiosRequester)
+  const fetchRequester = new FetchRequester()
+  const request: RequestCore = new RequestCore(fetchRequester)
   const cachePlugin = useCachePlugin({})
   const { result } = cachePlugin
   const retryPlugin = useRetryPlugin({
@@ -13,13 +14,7 @@ export default function Home() {
   request.use(retryPlugin)
   const handleRequest = async () => {
     request.request({
-      url: 'http://localhost:3000/api/aaa',
-      cacheOptions: {
-        useCache: false,
-      },
-      retryOptions: {
-
-      }
+      url: 'http://localhost:3000/api',
     }).then((res: any) => {
       console.log(res)
     }).catch(error => {
@@ -29,6 +24,9 @@ export default function Home() {
   const handleClear = async () => {
     result?.()
   }
+  const handleEject = () => {
+    request.eject(cachePlugin)
+  }
   useEffect(() => {
 
   }, [])
@@ -37,6 +35,7 @@ export default function Home() {
       <h1>Hello Super-Utils</h1>
       <button onClick={handleRequest}>请求</button>
       <button onClick={handleClear}>清除缓存</button>
+      <button onClick={handleEject}>弹出插件</button>
     </div>
   );
 }
