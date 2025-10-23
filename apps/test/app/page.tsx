@@ -1,41 +1,51 @@
 'use client'
-import { RequestCore, AxiosRequester, useCachePlugin, useRetryPlugin, FetchRequester } from '@super-cloud/super-utils'
+import {
+  RequestCore,
+  AxiosRequester,
+  useCachePlugin,
+  useRetryPlugin,
+  FetchRequester,
+  useCancelPlugin,
+  useIdempotencyPlugin
+} from '@super-cloud/super-utils'
 import { useEffect } from 'react'
 export default function Home() {
   const axiosRequester = new AxiosRequester()
-  const fetchRequester = new FetchRequester()
-  const request: RequestCore = new RequestCore(fetchRequester)
-  const cachePlugin = useCachePlugin({})
-  const { result } = cachePlugin
-  const retryPlugin = useRetryPlugin({
-    maxRetries: 10
-  }, request)
-  request.use(cachePlugin)
-  request.use(retryPlugin)
+  const request: RequestCore = new RequestCore(axiosRequester, {
+    baseUrl: 'http://localhost:3000',
+    withCredentials: false,
+  })
+  const idempotencyPlugin = useIdempotencyPlugin()
+  request.use(idempotencyPlugin)
   const handleRequest = async () => {
     request.request({
-      url: 'http://localhost:3000/api',
+      url: '/api',
+      method: 'POST',
+      timeout: 10000,
+      idempotencyOptions: {
+        idempotent: true
+      }
     }).then((res: any) => {
       console.log(res)
     }).catch(error => {
       console.log('error:', error)
     })
   }
-  const handleClear = async () => {
-    result?.()
+  const handleClick = () => {
+
   }
   const handleEject = () => {
-    request.eject(cachePlugin)
+    // request.eject(cachePlugin)
   }
   useEffect(() => {
 
   }, [])
   return (
-    <div>
+    <div className='flex gap-2'>
       <h1>Hello Super-Utils</h1>
-      <button onClick={handleRequest}>请求</button>
-      <button onClick={handleClear}>清除缓存</button>
-      <button onClick={handleEject}>弹出插件</button>
+      <button onClick={handleRequest} className='w-20 h-10 rounded-lg bg-blue-600'>请求</button>
+      <button onClick={handleClick} className='w-20 h-10 rounded-lg bg-blue-600'>取消请求</button>
+      <button onClick={handleEject} className='w-20 h-10 rounded-lg bg-blue-600'>弹出插件</button>
     </div>
   );
 }

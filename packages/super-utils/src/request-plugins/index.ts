@@ -1,6 +1,10 @@
-import { useCachePlugin } from "./cache-plugin/useCachePlugin"
-import { useRetryPlugin } from "./retry-plugin/useRetryPlugin"
+import { useCachePlugin } from "./cache-plugin"
+import { useRetryPlugin } from "./retry-plugin"
+import { useCancelPlugin } from "./cancel-plugin"
+import { useIdempotencyPlugin } from "./idempotency-plugin"
 export {
     useCachePlugin,
-    useRetryPlugin
+    useRetryPlugin,
+    useCancelPlugin,
+    useIdempotencyPlugin
 }
