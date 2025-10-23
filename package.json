@@ -1,5 +1,5 @@
 {
-  "name": "super-cloud",
+  "name": "yxzq-super-cloud",
   "private": true,
   "version": "1.0.0",
   "scripts": {
@@ -11,6 +11,7 @@
     "preview": "turbo run preview"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.7",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/tsconfig": "^0.7.0",
     "less": "^4.3.0",

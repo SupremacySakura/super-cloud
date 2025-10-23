@@ -1,5 +1,5 @@
 {
-  "name": "@super-cloud/super-cloud-root-app-server",
+  "name": "@yxzq-super-cloud/super-cloud-root-app-server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -36,5 +36,6 @@
     "@types/node": "^24.0.14",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2"
-  }
+  },
+  "private": true
 }

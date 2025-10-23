@@ -1,8 +1,8 @@
-# @super-cloud/super-utils
+# @yxzq-super-cloud/super-request-utils
 
 ## 项目简介
 
-`@super-cloud/super-utils` 是一个功能强大的HTTP请求工具库，提供了统一的请求接口、灵活的插件系统和多种请求实现方式。该库旨在简化HTTP请求的处理，提高开发效率，并通过插件机制支持各种高级功能，如缓存、重试、请求取消和幂等性保障。
+`@yxzq-super-cloud/super-request-utils` 是一个功能强大的HTTP请求工具库，提供了统一的请求接口、灵活的插件系统和多种请求实现方式。该库旨在简化HTTP请求的处理，提高开发效率，并通过插件机制支持各种高级功能，如缓存、重试、请求取消和幂等性保障。
 
 ## 核心特性
 
@@ -17,19 +17,19 @@
 使用npm安装：
 
 ```bash
-npm install @super-cloud/super-utils
+npm install @yxzq-super-cloud/super-request-utils
 ```
 
 使用yarn安装：
 
 ```bash
-yarn add @super-cloud/super-utils
+yarn add @yxzq-super-cloud/super-request-utils
 ```
 
 使用pnpm安装：
 
 ```bash
-pnpm add @super-cloud/super-utils
+pnpm add @yxzq-super-cloud/super-request-utils
 ```
 
 ## 核心组件
@@ -73,7 +73,7 @@ pnpm add @super-cloud/super-utils
 ### 创建请求实例
 
 ```typescript
-import { RequestCore, AxiosRequester } from '@super-cloud/super-utils';
+import { RequestCore, AxiosRequester } from '@yxzq-super-cloud/super-request-utils';
 
 // 创建请求核心实例
 const requestCore = new RequestCore(new AxiosRequester(), {
@@ -104,7 +104,7 @@ const createResponse = await requestCore.request({
 ### 使用插件
 
 ```typescript
-import { useCachePlugin, useRetryPlugin, useIdempotencyPlugin } from '@super-cloud/super-utils';
+import { useCachePlugin, useRetryPlugin, useIdempotencyPlugin } from '@yxzq-super-cloud/super-request-utils';
 
 // 添加缓存插件
 requestCore.use(useCachePlugin({
