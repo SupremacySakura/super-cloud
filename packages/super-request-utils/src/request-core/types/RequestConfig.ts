@@ -1,5 +1,3 @@
-import { GlobalCacheOptions, RequestCacheOptions } from "../../request-plugins/cache-plugin/cache.types"
-
 /**
  * HTTP请求方法类型
  * 

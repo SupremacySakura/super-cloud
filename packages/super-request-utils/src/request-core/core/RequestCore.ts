@@ -140,9 +140,9 @@ export class RequestCore {
                 response = await Promise.race([
                     requestPromise,
                     new Promise<Response<T>>((_, reject) => {
+                        // config会在错误捕获时进行组装，这里不需要进行组装
                         setTimeout(() => reject({
                             error: new Error(`Request timed out after ${timeout}ms`),
-                            config,
                         }), timeout)
                     })
                 ])

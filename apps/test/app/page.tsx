@@ -1,17 +1,11 @@
 'use client'
-import {
-  RequestCore,
-  AxiosRequester,
-  useCachePlugin,
-  useRetryPlugin,
-  FetchRequester,
-  useCancelPlugin,
-  useIdempotencyPlugin
-} from '@super-cloud/super-utils'
+import { AxiosRequester,FetchRequester
+  , RequestCore, useIdempotencyPlugin } from '@yxzq-super-cloud/super-request-utils'
 import { useEffect } from 'react'
 export default function Home() {
-  const axiosRequester = new AxiosRequester()
-  const request: RequestCore = new RequestCore(axiosRequester, {
+  // const axiosRequester = new AxiosRequester()
+  const fetchRequester = new FetchRequester()
+  const request: RequestCore = new RequestCore(fetchRequester, {
     baseUrl: 'http://localhost:3000',
     withCredentials: false,
   })
@@ -21,7 +15,7 @@ export default function Home() {
     request.request({
       url: '/api',
       method: 'POST',
-      timeout: 10000,
+      timeout: 1000,
       idempotencyOptions: {
         idempotent: true
       }

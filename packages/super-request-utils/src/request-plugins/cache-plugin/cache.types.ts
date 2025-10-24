@@ -41,7 +41,7 @@ export interface RequestCacheOptions {
  * 
  * 扩展请求级缓存配置，增加全局缓存管理相关设置
  */
-export interface GlobalCacheOptions extends RequestCacheOptions {
+export interface CacheOptions extends RequestCacheOptions {
     /**
      * 是否启用定时清理过期缓存
      * 

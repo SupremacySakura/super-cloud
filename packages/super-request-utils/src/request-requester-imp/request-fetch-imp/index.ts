@@ -33,7 +33,6 @@ export class FetchRequester implements Requester {
             // 发送fetch请求，设置适当的凭据配置和请求参数
             const res = await fetch(url, {
                 ...restConfig,
-                body: JSON.stringify(config.data),
                 credentials: withCredentials ? 'include' : 'omit',
             })
 

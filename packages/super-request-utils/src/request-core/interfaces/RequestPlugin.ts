@@ -44,9 +44,9 @@ export interface RequestPlugin<K = any> {
      * 在请求失败时被调用，可以实现错误处理、转换或恢复逻辑
      * 
      * @param {RequestError} error - 请求错误对象
-     * @returns {Promise<any>|any} 返回处理后的错误对象或包含response字段的对象（表示错误已被处理）
+     * @returns {Promise<RequestError>|RequestError} 返回处理后的错误对象或包含response字段的对象（表示错误已被处理）
      */
-    onError?: (error: RequestError) => Promise<any> | any
+    onError?: (error: RequestError) => Promise<RequestError> | RequestError
     
     /**
      * 插件自定义返回值

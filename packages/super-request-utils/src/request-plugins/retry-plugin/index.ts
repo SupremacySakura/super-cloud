@@ -50,17 +50,17 @@ export const useRetryPlugin = (options: RetryOptions = {}, requestCore: RequestC
         const baseDelay = 1000 // 基础延迟1秒
         return Math.pow(2, retryCount) * baseDelay + Math.random() * 100
     }
-    
+
     // 解析配置参数，设置默认值
     const {
         maxRetries: globalMaxRetries = 3,                      // 默认最大重试次数
         retryCondition: globalRetryCondition = defaultRetryCondition,  // 默认重试条件
         getDelay: globalGetDelay = defaultGetDelay             // 默认延迟计算
     } = options
-    
+
     return {
         name: 'retry-plugin',
-        
+
         /**
          * 请求前钩子函数
          * 
@@ -72,7 +72,7 @@ export const useRetryPlugin = (options: RetryOptions = {}, requestCore: RequestC
         beforeRequest<T>(config: RequestConfig) {
             return config
         },
-        
+
         /**
          * 响应后钩子函数
          * 
@@ -83,7 +83,7 @@ export const useRetryPlugin = (options: RetryOptions = {}, requestCore: RequestC
         afterResponse(response: Response) {
             return response
         },
-        
+
         /**
          * 错误处理钩子函数
          * 
@@ -104,7 +104,7 @@ export const useRetryPlugin = (options: RetryOptions = {}, requestCore: RequestC
                 getDelay: globalGetDelay,
                 __retryCount: 0
             }
-            
+
             // 获取最终使用的配置值
             const maxRetries = requestRetryOptions?.maxRetries ?? globalMaxRetries
             const retryCondition = requestRetryOptions?.retryCondition ?? globalRetryCondition
@@ -125,17 +125,17 @@ export const useRetryPlugin = (options: RetryOptions = {}, requestCore: RequestC
                         __retryCount: currentRetryCount + 1
                     }
                 }
-                
+
                 // 计算重试延迟
                 const delay = getDelay((newConfig.retryOptions as RetryOptionsWithCount)?.__retryCount || 0)
 
                 // 创建延迟执行的重试请求
-                const response = new Promise((resolve) => {
+                const response: Response = await new Promise((resolve) => {
                     setTimeout(() => {
                         resolve(requestCore.request(newConfig))
                     }, delay)
                 })
-                
+
                 // 返回带有响应Promise的错误对象
                 return {
                     ...error,
@@ -146,7 +146,7 @@ export const useRetryPlugin = (options: RetryOptions = {}, requestCore: RequestC
             // 不再重试，拒绝Promise
             return Promise.reject(error)
         },
-        
+
         /**
          * 插件扩展方法
          * 

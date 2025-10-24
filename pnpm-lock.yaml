@@ -193,9 +193,9 @@ importers:
 
   apps/test:
     dependencies:
-      '@super-cloud/super-utils':
-        specifier: workspace:*
-        version: link:../../packages/super-utils
+      '@yxzq-super-cloud/super-request-utils':
+        specifier: ^1.0.1
+        version: 1.0.1(axios@1.10.0)
       next:
         specifier: 16.0.0-beta.0
         version: 16.0.0-beta.0(@babel/core@7.28.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -231,7 +231,7 @@ importers:
         specifier: ^4
         version: 4.1.15
 
-  packages/super-utils:
+  packages/super-request-utils:
     dependencies:
       axios:
         specifier: ^1.10.0
@@ -1646,6 +1646,11 @@ packages:
 
   '@vueuse/shared@9.13.0':
     resolution: {integrity: sha512-UrnhU+Cnufu4S6JLCPZnkWh0WwZGUp72ktOF2DFptMlOs3TOdVv8xJN53zhHGARmVOsz5KqOls09+J1NR6sBKw==}
+
+  '@yxzq-super-cloud/super-request-utils@1.0.1':
+    resolution: {integrity: sha512-xldEGGdDyl7fQaPwzb9IpoL5tRDbwg9guXxajeGJndu1+BCZir8IQRr9gJGVVOkD9y47CUHF4nrZpgDwOvy0Ag==}
+    peerDependencies:
+      axios: ^1.10.0
 
   accepts@1.3.8:
     resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}
@@ -5448,6 +5453,10 @@ snapshots:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
+
+  '@yxzq-super-cloud/super-request-utils@1.0.1(axios@1.10.0)':
+    dependencies:
+      axios: 1.10.0
 
   accepts@1.3.8:
     dependencies:

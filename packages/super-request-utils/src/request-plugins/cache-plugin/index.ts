@@ -7,7 +7,7 @@
 
 import { RequestPlugin } from "../../request-core/interfaces"
 import { RequestConfig, Response } from "../../request-core/types"
-import { GlobalCacheOptions } from "./cache.types"
+import { CacheOptions } from "./cache.types"
 
 /**
  * 创建缓存插件
@@ -19,7 +19,7 @@ import { GlobalCacheOptions } from "./cache.types"
  * @param options - 全局缓存配置选项
  * @returns 配置好的缓存插件实例，包含清理缓存的额外方法
  */
-export const useCachePlugin = (options: GlobalCacheOptions = {}): RequestPlugin<{ clearCache: () => void }> => {
+export const useCachePlugin = (options: CacheOptions = {}): RequestPlugin<{ clearCache: () => void }> => {
     // 解析配置参数，设置默认值
     const {
         cacheTTL = 60 * 1000,               // 默认缓存有效期1分钟
