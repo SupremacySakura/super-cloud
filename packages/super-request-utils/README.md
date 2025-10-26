@@ -259,16 +259,18 @@ interface RetryOptions {
   maxRetries?: number  // 最大重试次数，默认3次
   retryCondition?: (error: RequestError) => boolean  // 重试条件函数
   getDelay?: (retryCount: number, error: RequestError) => number  // 延迟计算函数
+  beforeRetry?: (retryCount: number, config: RequestConfig) => RequestConfig | Promise<RequestConfig>  // 重试前修改请求配置的函数
 }
 ```
 
 #### 请求级配置 (通过RequestConfig.retryOptions)
 
 ```typescript
-interface RetryOptionsWithCount {
+interface RequestRetryOptions {
   maxRetries?: number  // 最大重试次数，覆盖全局配置
   retryCondition?: (error: RequestError) => boolean  // 重试条件函数，覆盖全局配置
   getDelay?: (retryCount: number, error: RequestError) => number  // 延迟计算函数，覆盖全局配置
+  beforeRetry?: (retryCount: number, config: RequestConfig) => RequestConfig | Promise<RequestConfig>  // 重试前修改请求配置的函数，覆盖全局配置
   __retryCount?: number  // 内部使用，当前重试次数
 }
 ```
@@ -279,16 +281,59 @@ interface RetryOptionsWithCount {
 // 创建插件时配置
 requestCore.use(useRetryPlugin({
   maxRetries: 5,  // 全局默认重试5次
-  retryCondition: (error) => error.status >= 500 || error.name === 'NetworkError'
+  retryCondition: (error) => error.status >= 500 || error.name === 'NetworkError',
+  // 全局配置：重试前修改请求参数
+  beforeRetry: (retryCount, config) => {
+    // 在重试时修改baseUrl
+    return {
+      ...config,
+      baseUrl:'https://api.example.com',
+    }
+  }
 }, requestCore))
 
 // 单个请求配置 - 覆盖全局设置
 const response = await requestCore.request({
   url: '/unstable-endpoint',
   method: 'POST',
+  data: { attempt: 1 },
   retryOptions: {
     maxRetries: 10,  // 此请求最多重试10次
-    getDelay: (count) => 1000 * Math.pow(2, count)  // 指数退避策略
+    getDelay: (count) => 1000 * Math.pow(2, count),  // 指数退避策略
+    // 请求级配置：重试前修改请求数据和参数
+    beforeRetry: (retryCount, config) => {
+      return {
+        ...config,
+        // 更新请求体中的尝试次数
+        data: {
+          ...config.data,
+          attempt: retryCount + 1
+        }
+        // 更新超时时间，随着重试次数增加而延长
+        timeout: (config.timeout || 30000) * (1 + retryCount * 0.2)
+      }
+    }
+  }
+})
+
+// 异步修改请求配置的示例
+const asyncResponse = await requestCore.request({
+  url: '/api/refresh-data',
+  method: 'GET',
+  retryOptions: {
+    // 异步操作，如刷新token后重试
+    beforeRetry: async (retryCount, config) => {
+      // 假设有一个刷新token的异步函数
+      const newToken = await refreshAuthToken()
+      
+      return {
+        ...config,
+        headers: {
+          ...config.headers,
+          Authorization: `Bearer ${newToken}`
+        }
+      }
+    }
   }
 })
 ```

@@ -68,7 +68,7 @@ declare module '../' {
         /**
          * 请求级取消配置选项
          * 
-         * 为单个请求提供特定的取消配置
+         * 为单个请求提供特定的取消配置 需要使用cancel-plugin之后才会生效
          */
         cancelOptions?: RequestCancelOptions
     }
@@ -83,7 +83,7 @@ declare module '../../request-core/types' {
         /**
          * 请求级取消配置选项
          * 
-         * 为单个请求提供特定的取消配置
+         * 为单个请求提供特定的取消配置 需要使用cancel-plugin之后才会生效
          */
         cancelOptions?: RequestCancelOptions
     }

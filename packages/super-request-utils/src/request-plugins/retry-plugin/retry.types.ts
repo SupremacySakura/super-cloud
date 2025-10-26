@@ -4,6 +4,8 @@
  * 提供重试插件所需的所有类型定义，包括重试配置和请求级重试配置接口
  */
 
+import { RequestConfig } from "../../request-core"
+
 /**
  * 重试配置接口
  * 
@@ -16,7 +18,7 @@ export interface RetryOptions {
      * 指定请求失败后最多重试的次数，默认值为3
      */
     maxRetries?: number
-    
+
     /**
      * 重试条件函数
      * 
@@ -25,7 +27,7 @@ export interface RetryOptions {
      * @returns 是否应该重试的布尔值或Promise<boolean>
      */
     retryCondition?: (error: any) => boolean | Promise<boolean>
-    
+
     /**
      * 获取延迟时间的函数
      * 
@@ -34,6 +36,14 @@ export interface RetryOptions {
      * @returns 延迟毫秒数
      */
     getDelay?: (retryCount: number) => number
+
+    /**
+     * 重试之前自定义请求配置
+     * @param retryCount - 当前重试次数
+     * @param config - 上一次请求的配置
+     * @returns 新的请求配置
+     */
+    beforeRetry?: (retryCount: number, config: RequestConfig) => RequestConfig | Promise<RequestConfig>
 }
 
 /**
@@ -41,13 +51,13 @@ export interface RetryOptions {
  * 
  * 扩展RetryOptions接口，添加内部使用的重试计数属性
  */
-export type RetryOptionsWithCount = RetryOptions & { 
+export type RequestRetryOptions = RetryOptions & {
     /**
      * 内部使用的重试计数
      * 
      * 记录当前已执行的重试次数，由插件内部维护
      */
-    __retryCount?: number 
+    __retryCount?: number
 }
 
 // 临时解决方案：用于plugin代码提示和打包
@@ -60,9 +70,9 @@ declare module '../' {
         /**
          * 请求级重试配置选项
          * 
-         * 为单个请求提供特定的重试配置
+         * 为单个请求提供特定的重试配置 需要使用retry-plugin之后才会生效
          */
-        retryOptions?: RetryOptionsWithCount
+        retryOptions?: RequestRetryOptions
     }
 }
 
@@ -75,8 +85,8 @@ declare module '../../request-core/types' {
         /**
          * 请求级重试配置选项
          * 
-         * 为单个请求提供特定的重试配置
+         * 为单个请求提供特定的重试配置 需要使用retry-plugin之后才会生效
          */
-        retryOptions?: RetryOptionsWithCount
+        retryOptions?: RequestRetryOptions
     }
 }

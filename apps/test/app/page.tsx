@@ -1,23 +1,29 @@
 'use client'
-import { AxiosRequester,FetchRequester
-  , RequestCore, useIdempotencyPlugin } from '@yxzq-super-cloud/super-request-utils'
+import { FetchRequester, RequestConfig, RequestCore, useIdempotencyPlugin, useRetryPlugin } from '@yxzq-super-cloud/super-request-utils'
 import { useEffect } from 'react'
 export default function Home() {
-  // const axiosRequester = new AxiosRequester()
   const fetchRequester = new FetchRequester()
   const request: RequestCore = new RequestCore(fetchRequester, {
-    baseUrl: 'http://localhost:3000',
-    withCredentials: false,
+    baseUrl: 'http://localhost:4000',
   })
-  const idempotencyPlugin = useIdempotencyPlugin()
-  request.use(idempotencyPlugin)
+  // const idempotencyPlugin = useIdempotencyPlugin()
+  // request.use(idempotencyPlugin)
+  const retryPlugin = useRetryPlugin({
+
+  }, request)
+  request.use(retryPlugin)
   const handleRequest = async () => {
     request.request({
       url: '/api',
       method: 'POST',
-      timeout: 1000,
-      idempotencyOptions: {
-        idempotent: true
+      retryOptions: {
+        beforeRetry: (retryCount: number, config: RequestConfig) => {
+          return {
+            ...config,
+            baseUrl: 'http://localhost:3000',
+            url: '/api'
+          }
+        }
       }
     }).then((res: any) => {
       console.log(res)

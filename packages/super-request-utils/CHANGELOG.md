@@ -1,5 +1,11 @@
 # @super-cloud/super-request-utils
 
+## 1.1.0
+
+### Minor Changes
+
+- 重试插件新增重试前自定义参数功能
+
 ## 1.0.2
 
 ### Patch Changes

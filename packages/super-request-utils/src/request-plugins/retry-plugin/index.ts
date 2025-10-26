@@ -8,7 +8,7 @@
 import { RequestCore } from "../../request-core"
 import { RequestPlugin } from "../../request-core/interfaces"
 import { RequestConfig, RequestError, Response } from "../../request-core/types"
-import { RetryOptions, RetryOptionsWithCount } from "./retry.types"
+import { RetryOptions, RequestRetryOptions } from "./retry.types"
 
 /**
  * 创建重试插件
@@ -50,12 +50,22 @@ export const useRetryPlugin = (options: RetryOptions = {}, requestCore: RequestC
         const baseDelay = 1000 // 基础延迟1秒
         return Math.pow(2, retryCount) * baseDelay + Math.random() * 100
     }
+    /**
+     * 默认重试前参数处理函数
+     * @param retryCount - 当前重试次数
+     * @param config - 上一次请求的配置 
+     * @returns 新的请求配置
+     */
+    const defaultBeforeRetry = (retryCount: number, config: RequestConfig) => {
+        return config
+    }
 
     // 解析配置参数，设置默认值
     const {
         maxRetries: globalMaxRetries = 3,                      // 默认最大重试次数
         retryCondition: globalRetryCondition = defaultRetryCondition,  // 默认重试条件
-        getDelay: globalGetDelay = defaultGetDelay             // 默认延迟计算
+        getDelay: globalGetDelay = defaultGetDelay,             // 默认延迟计算
+        beforeRetry: globalBeforeRetry = defaultBeforeRetry
     } = options
 
     return {
@@ -117,9 +127,12 @@ export const useRetryPlugin = (options: RetryOptions = {}, requestCore: RequestC
 
             // 如果应该重试且还有剩余重试次数
             if (shouldRetry && remainingRetries > 0) {
+                const beforeRetry = config.retryOptions?.beforeRetry || globalBeforeRetry
+                const beforeRetryConfig = await beforeRetry(currentRetryCount, config)
                 // 创建带有更新重试计数的新配置
                 const newConfig: RequestConfig = {
                     ...config,
+                    ...beforeRetryConfig,
                     retryOptions: {
                         ...requestRetryOptions,
                         __retryCount: currentRetryCount + 1
@@ -127,7 +140,7 @@ export const useRetryPlugin = (options: RetryOptions = {}, requestCore: RequestC
                 }
 
                 // 计算重试延迟
-                const delay = getDelay((newConfig.retryOptions as RetryOptionsWithCount)?.__retryCount || 0)
+                const delay = getDelay((newConfig.retryOptions as RequestRetryOptions)?.__retryCount || 0)
 
                 // 创建延迟执行的重试请求
                 const response: Response = await new Promise((resolve) => {

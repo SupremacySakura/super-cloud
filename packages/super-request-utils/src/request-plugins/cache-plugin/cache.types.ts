@@ -76,7 +76,7 @@ declare module '../' {
         /**
          * 请求级缓存选项
          * 
-         * 为单个请求提供特定的缓存配置
+         * 为单个请求提供特定的缓存配置 需要使用cache-plugin之后才会生效
          */
         cacheOptions?: RequestCacheOptions
     }
@@ -91,7 +91,7 @@ declare module '../../request-core/types' {
         /**
          * 请求级缓存选项
          * 
-         * 为单个请求提供特定的缓存配置
+         * 为单个请求提供特定的缓存配置 需要使用cache-plugin之后才会生效
          */
         cacheOptions: RequestCacheOptions
     }

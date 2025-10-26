@@ -1,6 +1,6 @@
 {
   "name": "@yxzq-super-cloud/super-request-utils",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "main": "dist/index.js",
   "description": "@super-cloud/super-utils",
   "type": "module",

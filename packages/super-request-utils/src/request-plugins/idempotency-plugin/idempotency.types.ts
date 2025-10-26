@@ -73,7 +73,7 @@ declare module '../' {
         /**
          * 请求级幂等配置选项
          * 
-         * 为单个请求提供特定的幂等配置
+         * 为单个请求提供特定的幂等配置 需要使用idempotency-plugin之后才会生效
          */
         idempotencyOptions?: RequestIdempotencyOptions
     }
@@ -88,7 +88,7 @@ declare module '../../request-core/types' {
         /**
          * 请求级幂等配置选项
          * 
-         * 为单个请求提供特定的幂等配置
+         * 为单个请求提供特定的幂等配置 需要使用idempotency-plugin之后才会生效
          */
         idempotencyOptions?: RequestIdempotencyOptions
     }
