@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@yxzq-super-cloud/super-request-utils": "workspace:*",
+    "@yxzq-super-cloud/super-upload-core":"workspace:*",
+    "@yxzq-super-cloud/super-upload-browser": "workspace:*",
+    "@yxzq-super-cloud/super-upload-server": "workspace:*",
     "next": "16.0.0-beta.0",
     "react": "19.1.0",
     "react-dom": "19.1.0"

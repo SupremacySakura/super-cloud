@@ -32,10 +32,10 @@ importers:
     devDependencies:
       '@changesets/cli':
         specifier: ^2.29.7
-        version: 2.29.7(@types/node@24.0.15)
+        version: 2.29.7(@types/node@24.9.1)
       '@vitejs/plugin-vue':
         specifier: ^6.0.0
-        version: 6.0.0(vite@7.0.5(@types/node@24.0.15)(jiti@2.6.1)(less@4.4.0)(lightningcss@1.30.2))(vue@3.5.17(typescript@5.8.3))
+        version: 6.0.0(vite@7.0.5(@types/node@24.9.1)(jiti@2.6.1)(less@4.4.0)(lightningcss@1.30.2))(vue@3.5.17(typescript@5.8.3))
       '@vue/tsconfig':
         specifier: ^0.7.0
         version: 0.7.0(typescript@5.8.3)(vue@3.5.17(typescript@5.8.3))
@@ -56,7 +56,7 @@ importers:
         version: 28.8.0(@babel/parser@7.28.4)(vue@3.5.17(typescript@5.8.3))
       vite:
         specifier: ^7.0.4
-        version: 7.0.5(@types/node@24.0.15)(jiti@2.6.1)(less@4.4.0)(lightningcss@1.30.2)
+        version: 7.0.5(@types/node@24.9.1)(jiti@2.6.1)(less@4.4.0)(lightningcss@1.30.2)
       vite-svg-loader:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.5.17(typescript@5.8.3))
@@ -196,6 +196,15 @@ importers:
       '@yxzq-super-cloud/super-request-utils':
         specifier: workspace:*
         version: link:../../packages/super-request-utils
+      '@yxzq-super-cloud/super-upload-browser':
+        specifier: workspace:*
+        version: link:../../packages/super-upload-browser
+      '@yxzq-super-cloud/super-upload-core':
+        specifier: workspace:*
+        version: link:../../packages/super-upload-core
+      '@yxzq-super-cloud/super-upload-server':
+        specifier: workspace:*
+        version: link:../../packages/super-upload-server
       next:
         specifier: 16.0.0-beta.0
         version: 16.0.0-beta.0(@babel/core@7.28.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -246,6 +255,95 @@ importers:
       '@rollup/plugin-typescript':
         specifier: ^12.1.4
         version: 12.1.4(rollup@4.52.5)(tslib@2.8.1)(typescript@5.8.3)
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
+      rollup:
+        specifier: ^4.52.5
+        version: 4.52.5
+      rollup-plugin-dts:
+        specifier: ^6.2.3
+        version: 6.2.3(rollup@4.52.5)(typescript@5.8.3)
+      rollup-plugin-typescript2:
+        specifier: ^0.36.0
+        version: 0.36.0(rollup@4.52.5)(typescript@5.8.3)
+
+  packages/super-upload-browser:
+    dependencies:
+      '@yxzq-super-cloud/super-upload-core':
+        specifier: workspace:*
+        version: link:../super-upload-core
+    devDependencies:
+      '@rollup/plugin-commonjs':
+        specifier: ^28.0.8
+        version: 28.0.8(rollup@4.52.5)
+      '@rollup/plugin-node-resolve':
+        specifier: ^16.0.3
+        version: 16.0.3(rollup@4.52.5)
+      '@rollup/plugin-typescript':
+        specifier: ^12.1.4
+        version: 12.1.4(rollup@4.52.5)(tslib@2.8.1)(typescript@5.8.3)
+      '@types/node':
+        specifier: ^24.9.1
+        version: 24.9.1
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
+      rollup:
+        specifier: ^4.52.5
+        version: 4.52.5
+      rollup-plugin-dts:
+        specifier: ^6.2.3
+        version: 6.2.3(rollup@4.52.5)(typescript@5.8.3)
+      rollup-plugin-typescript2:
+        specifier: ^0.36.0
+        version: 0.36.0(rollup@4.52.5)(typescript@5.8.3)
+
+  packages/super-upload-core:
+    devDependencies:
+      '@rollup/plugin-commonjs':
+        specifier: ^28.0.8
+        version: 28.0.8(rollup@4.52.5)
+      '@rollup/plugin-node-resolve':
+        specifier: ^16.0.3
+        version: 16.0.3(rollup@4.52.5)
+      '@rollup/plugin-typescript':
+        specifier: ^12.1.4
+        version: 12.1.4(rollup@4.52.5)(tslib@2.8.1)(typescript@5.8.3)
+      '@types/node':
+        specifier: ^24.9.1
+        version: 24.9.1
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
+      rollup:
+        specifier: ^4.52.5
+        version: 4.52.5
+      rollup-plugin-dts:
+        specifier: ^6.2.3
+        version: 6.2.3(rollup@4.52.5)(typescript@5.8.3)
+      rollup-plugin-typescript2:
+        specifier: ^0.36.0
+        version: 0.36.0(rollup@4.52.5)(typescript@5.8.3)
+
+  packages/super-upload-server:
+    dependencies:
+      '@yxzq-super-cloud/super-upload-core':
+        specifier: workspace:*
+        version: link:../super-upload-core
+    devDependencies:
+      '@rollup/plugin-commonjs':
+        specifier: ^28.0.8
+        version: 28.0.8(rollup@4.52.5)
+      '@rollup/plugin-node-resolve':
+        specifier: ^16.0.3
+        version: 16.0.3(rollup@4.52.5)
+      '@rollup/plugin-typescript':
+        specifier: ^12.1.4
+        version: 12.1.4(rollup@4.52.5)(tslib@2.8.1)(typescript@5.8.3)
+      '@types/node':
+        specifier: ^24.9.1
+        version: 24.9.1
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -1375,6 +1473,9 @@ packages:
 
   '@types/node@24.0.15':
     resolution: {integrity: sha512-oaeTSbCef7U/z7rDeJA138xpG3NuKc64/rZ2qmUFkFJmnMsAPaluIifqyWd8hSSMxyP9oie3dLAqYPblag9KgA==}
+
+  '@types/node@24.9.1':
+    resolution: {integrity: sha512-QoiaXANRkSXK6p0Duvt56W208du4P9Uye9hWLWgGMDTEoKPhuenzNcC4vGUmrNkiOKTlIrBoyNQYNpSwfEZXSg==}
 
   '@types/nodemailer@6.4.17':
     resolution: {integrity: sha512-I9CCaIp6DTldEg7vyUTZi8+9Vo0hi1/T8gv3C89yk1rSAAzoKQ8H8ki/jBYJSFoH/BisgLP8tkZMlQ91CIquww==}
@@ -3875,6 +3976,9 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
+  undici-types@7.16.0:
+    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
+
   undici-types@7.8.0:
     resolution: {integrity: sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw==}
 
@@ -4231,7 +4335,7 @@ snapshots:
     dependencies:
       '@changesets/types': 6.1.0
 
-  '@changesets/cli@2.29.7(@types/node@24.0.15)':
+  '@changesets/cli@2.29.7(@types/node@24.9.1)':
     dependencies:
       '@changesets/apply-release-plan': 7.0.13
       '@changesets/assemble-release-plan': 6.0.9
@@ -4247,7 +4351,7 @@ snapshots:
       '@changesets/should-skip-package': 0.1.2
       '@changesets/types': 6.1.0
       '@changesets/write': 0.4.0
-      '@inquirer/external-editor': 1.0.2(@types/node@24.0.15)
+      '@inquirer/external-editor': 1.0.2(@types/node@24.9.1)
       '@manypkg/get-packages': 1.1.3
       ansi-colors: 4.1.3
       ci-info: 3.9.0
@@ -4609,12 +4713,12 @@ snapshots:
   '@img/sharp-win32-x64@0.34.4':
     optional: true
 
-  '@inquirer/external-editor@1.0.2(@types/node@24.0.15)':
+  '@inquirer/external-editor@1.0.2(@types/node@24.9.1)':
     dependencies:
       chardet: 2.1.0
       iconv-lite: 0.7.0
     optionalDependencies:
-      '@types/node': 24.0.15
+      '@types/node': 24.9.1
 
   '@isaacs/balanced-match@4.0.1': {}
 
@@ -5011,21 +5115,21 @@ snapshots:
 
   '@types/accepts@1.3.7':
     dependencies:
-      '@types/node': 24.0.15
+      '@types/node': 24.9.1
 
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 24.0.15
+      '@types/node': 24.9.1
 
   '@types/co-body@6.1.3':
     dependencies:
-      '@types/node': 24.0.15
+      '@types/node': 24.9.1
       '@types/qs': 6.14.0
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 24.0.15
+      '@types/node': 24.9.1
 
   '@types/content-disposition@0.5.9': {}
 
@@ -5034,13 +5138,13 @@ snapshots:
       '@types/connect': 3.4.38
       '@types/express': 5.0.3
       '@types/keygrip': 1.0.6
-      '@types/node': 24.0.15
+      '@types/node': 24.9.1
 
   '@types/estree@1.0.8': {}
 
   '@types/express-serve-static-core@5.0.7':
     dependencies:
-      '@types/node': 24.0.15
+      '@types/node': 24.9.1
       '@types/qs': 6.14.0
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.5
@@ -5053,7 +5157,7 @@ snapshots:
 
   '@types/formidable@2.0.6':
     dependencies:
-      '@types/node': 24.0.15
+      '@types/node': 24.9.1
 
   '@types/fs-extra@11.0.4':
     dependencies:
@@ -5070,7 +5174,7 @@ snapshots:
 
   '@types/jsonfile@6.1.4':
     dependencies:
-      '@types/node': 24.0.15
+      '@types/node': 24.9.1
 
   '@types/keygrip@1.0.6': {}
 
@@ -5132,6 +5236,10 @@ snapshots:
     dependencies:
       undici-types: 7.8.0
 
+  '@types/node@24.9.1':
+    dependencies:
+      undici-types: 7.16.0
+
   '@types/nodemailer@6.4.17':
     dependencies:
       '@types/node': 24.0.15
@@ -5153,12 +5261,12 @@ snapshots:
   '@types/send@0.17.5':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 24.0.15
+      '@types/node': 24.9.1
 
   '@types/serve-static@1.15.8':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 24.0.15
+      '@types/node': 24.9.1
       '@types/send': 0.17.5
 
   '@types/web-bluetooth@0.0.16': {}
@@ -5315,10 +5423,10 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
-  '@vitejs/plugin-vue@6.0.0(vite@7.0.5(@types/node@24.0.15)(jiti@2.6.1)(less@4.4.0)(lightningcss@1.30.2))(vue@3.5.17(typescript@5.8.3))':
+  '@vitejs/plugin-vue@6.0.0(vite@7.0.5(@types/node@24.9.1)(jiti@2.6.1)(less@4.4.0)(lightningcss@1.30.2))(vue@3.5.17(typescript@5.8.3))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-beta.19
-      vite: 7.0.5(@types/node@24.0.15)(jiti@2.6.1)(less@4.4.0)(lightningcss@1.30.2)
+      vite: 7.0.5(@types/node@24.9.1)(jiti@2.6.1)(less@4.4.0)(lightningcss@1.30.2)
       vue: 3.5.17(typescript@5.8.3)
 
   '@volar/language-core@2.4.15':
@@ -7978,6 +8086,8 @@ snapshots:
 
   undici-types@6.21.0: {}
 
+  undici-types@7.16.0: {}
+
   undici-types@7.8.0: {}
 
   unimport@4.2.0:
@@ -8084,7 +8194,7 @@ snapshots:
       svgo: 3.3.2
       vue: 3.5.17(typescript@5.8.3)
 
-  vite@7.0.5(@types/node@24.0.15)(jiti@2.6.1)(less@4.4.0)(lightningcss@1.30.2):
+  vite@7.0.5(@types/node@24.9.1)(jiti@2.6.1)(less@4.4.0)(lightningcss@1.30.2):
     dependencies:
       esbuild: 0.25.6
       fdir: 6.4.6(picomatch@4.0.3)
@@ -8093,7 +8203,7 @@ snapshots:
       rollup: 4.45.1
       tinyglobby: 0.2.14
     optionalDependencies:
-      '@types/node': 24.0.15
+      '@types/node': 24.9.1
       fsevents: 2.3.3
       jiti: 2.6.1
       less: 4.4.0

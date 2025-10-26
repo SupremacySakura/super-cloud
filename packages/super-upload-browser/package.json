@@ -1,8 +1,8 @@
 {
-  "name": "@yxzq-super-cloud/super-request-utils",
-  "version": "1.1.0",
+  "name": "@yxzq-super-cloud/super-upload-browser",
+  "version": "0.0.0",
   "main": "dist/index.js",
-  "description": "@yxzq-super-cloud/super-request-utils",
+  "description": "@yxzq-super-cloud/super-upload-browser",
   "type": "module",
   "types": "dist/index.d.ts",
   "publishConfig": {
@@ -32,15 +32,13 @@
     "@rollup/plugin-commonjs": "^28.0.8",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-typescript": "^12.1.4",
+    "@types/node": "^24.9.1",
     "rimraf": "^6.0.1",
     "rollup": "^4.52.5",
     "rollup-plugin-dts": "^6.2.3",
     "rollup-plugin-typescript2": "^0.36.0"
   },
   "dependencies": {
-    "axios": "^1.10.0"
-  },
-  "peerDependencies": {
-    "axios": "^1.10.0"
+   "@yxzq-super-cloud/super-upload-core": "workspace:*"
   }
 }
