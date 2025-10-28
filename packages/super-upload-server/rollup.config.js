@@ -12,7 +12,7 @@ export default [
         plugins: [
             typescript()
         ],
-        external: ['fs', 'path'],
+        external: ['fs', 'path', 'stream'],
     },
     {
         input: 'dist/types/index.d.ts',

@@ -1,6 +1,6 @@
-import { UploadServer } from "./upload-server"
-import type { UploadStorage, UploadStorageValue } from "./upload-storage"
-import { InternalStorage } from "./upload-storage"
+import { UploadServer } from './upload-server/UploadServer'
+import type { UploadStorage, UploadStorageValue } from './upload-storage'
+import { InternalStorage } from './upload-storage'
 export {
     UploadServer,
     InternalStorage

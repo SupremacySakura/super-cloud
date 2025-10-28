@@ -12,7 +12,7 @@ export default [
         plugins: [
             typescript()
         ],
-        external: ['fs', 'path'],
+        external: ['fs', 'path','spark-md5'],
     },
     {
         input: 'dist/types/index.d.ts',

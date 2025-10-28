@@ -1,8 +1,10 @@
 export interface ChunkUploadProps {
+    fileName: string
     fileId: string
     index: number
     chunk: Blob
     total: number
+    hash: string
 }
 
 export interface ChunkUploader {
@@ -21,4 +23,10 @@ export interface ChunkUploader {
      * @param total 片段总数
      */
     checkFile(fileId: string, total: number): Promise<Array<number>>
+
+    /**
+     * 通过流的方式读取文件
+     * @param fileId 文件id
+     */
+    readFileByStream(fileId: string): Promise<{ fileName: string, file: Blob }>
 }

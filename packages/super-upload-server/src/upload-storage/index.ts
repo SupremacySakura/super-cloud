@@ -1,5 +1,5 @@
-import type { UploadStorage, UploadStorageValue } from './interfaces'
-import { InternalStorage } from './implements'
+import type { UploadStorage, UploadStorageValue } from './interfaces/UploadStorage'
+import { InternalStorage } from './implements/InternalStorage'
 export type {
     UploadStorage,
     UploadStorageValue

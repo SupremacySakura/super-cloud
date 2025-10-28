@@ -300,6 +300,10 @@ importers:
         version: 0.36.0(rollup@4.52.5)(typescript@5.8.3)
 
   packages/super-upload-core:
+    dependencies:
+      spark-md5:
+        specifier: ^3.0.2
+        version: 3.0.2
     devDependencies:
       '@rollup/plugin-commonjs':
         specifier: ^28.0.8
@@ -313,6 +317,9 @@ importers:
       '@types/node':
         specifier: ^24.9.1
         version: 24.9.1
+      '@types/spark-md5':
+        specifier: ^3.0.5
+        version: 3.0.5
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -1502,6 +1509,9 @@ packages:
 
   '@types/serve-static@1.15.8':
     resolution: {integrity: sha512-roei0UY3LhpOJvjbIP6ZZFngyLKl5dskOtDhxY5THRSpO+ZI+nzJ+m5yUMzGrp89YRa7lvknKkMYjqQFGwA7Sg==}
+
+  '@types/spark-md5@3.0.5':
+    resolution: {integrity: sha512-lWf05dnD42DLVKQJZrDHtWFidcLrHuip01CtnC2/S6AMhX4t9ZlEUj4iuRlAnts0PQk7KESOqKxeGE/b6sIPGg==}
 
   '@types/web-bluetooth@0.0.16':
     resolution: {integrity: sha512-oh8q2Zc32S6gd/j50GowEjKLoOVOwHP/bWVjKJInBwQqdOYMdPrf1oVlelTlyfFK3CKxL1uahMDAr+vy8T7yMQ==}
@@ -3715,6 +3725,9 @@ packages:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
 
+  spark-md5@3.0.2:
+    resolution: {integrity: sha512-wcFzz9cDfbuqe0FZzfi2or1sgyIrsDwmPwfZC4hiNidPdPINjeUwNfv5kldczoEAcjl9Y1L3SM7Uz2PUEQzxQw==}
+
   spawndamnit@3.0.1:
     resolution: {integrity: sha512-MmnduQUuHCoFckZoWnXsTg7JaiLBJrKFj9UI2MbRPGaJeVpsLcVBu6P/IGZovziM/YBsellCmsprgNA+w0CzVg==}
 
@@ -5268,6 +5281,8 @@ snapshots:
       '@types/http-errors': 2.0.5
       '@types/node': 24.9.1
       '@types/send': 0.17.5
+
+  '@types/spark-md5@3.0.5': {}
 
   '@types/web-bluetooth@0.0.16': {}
 
@@ -7800,6 +7815,8 @@ snapshots:
 
   source-map@0.6.1:
     optional: true
+
+  spark-md5@3.0.2: {}
 
   spawndamnit@3.0.1:
     dependencies:

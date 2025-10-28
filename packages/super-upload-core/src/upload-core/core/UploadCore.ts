@@ -1,4 +1,5 @@
-import { ChunkUploader } from "../interfaces"
+import type { ChunkUploader } from '../interfaces/ChunkUploader'
+import SparkMD5 from 'spark-md5'
 
 export interface UploadCoreOptions {
     chunkSize: number  // 分块大小
@@ -9,6 +10,8 @@ export interface UploadCoreOptions {
 export class UploadCore {
     private chunkUploader: ChunkUploader
     private uploadCoreOptions: UploadCoreOptions
+    private isPaused = false  // 暂停开关
+    private pendingTasks: (() => Promise<any>)[] = []
 
     constructor(chunkUploader: ChunkUploader, options: UploadCoreOptions) {
         this.chunkUploader = chunkUploader
@@ -52,8 +55,15 @@ export class UploadCore {
         let completed = 0
         const total = tasks.length
         const queue = [...tasks]
+        this.pendingTasks = queue
+
+        if (!queue.length) {
+            if (this.uploadCoreOptions.onProgress) {
+                this.uploadCoreOptions.onProgress(100)
+            }
+        }
         const workers = new Array(limit).fill(null).map(async () => {
-            while (queue.length) {
+            while (queue.length && !this.isPaused) {
                 const task = queue.shift()
                 if (task) {
                     try {
@@ -70,6 +80,11 @@ export class UploadCore {
         await Promise.all(workers)
     }
 
+    private getFileHash = async (file: Blob): Promise<string> => {
+        const buffer = await file.arrayBuffer()
+        const hash = SparkMD5.ArrayBuffer.hash(buffer)
+        return hash
+    }
     /**
      * 开始上传
      * @param file 文件
@@ -77,13 +92,18 @@ export class UploadCore {
     start = async (file: File) => {
         // 文件分块
         const chunks = this.createChunk(file)
+        const chunkHashes = await Promise.all(
+            chunks.map(chunk => this.getFileHash(chunk.blob))
+        )
         // 生成任务
-        const tasks = chunks.map((chunk) => {
-            return () => this.chunkUploader.uploadChunk({
+        const tasks = chunks.map((chunk, index) => {
+            return async () => this.chunkUploader.uploadChunk({
+                fileName: file.name,
                 fileId: this.getFileId(file),
                 index: chunk.index,
                 chunk: chunk.blob,
-                total: chunks.length
+                total: chunks.length,
+                hash: chunkHashes[index]
             })
         })
         // 检查哪些分块需要上传
@@ -94,5 +114,26 @@ export class UploadCore {
         const needDoTasks = tasks.filter((_, index) => needUploadSet.has(index))
         // 上传
         await this.runWithConcurrency(needDoTasks, this.uploadCoreOptions.concurrency || 3)
+        return {
+            fileId: this.getFileId(file)
+        }
+    }
+
+    pause = () => {
+        this.isPaused = true
+    }
+
+    resume = async () => {
+        if (!this.pendingTasks.length) {
+            console.warn('没有需要继续的任务')
+            return
+        }
+        this.isPaused = false
+        await this.runWithConcurrency(this.pendingTasks, this.uploadCoreOptions.concurrency || 3)
+    }
+
+    readFile = async (fileId: string) => {
+        const file = await this.chunkUploader.readFileByStream(fileId)
+        return file
     }
 }

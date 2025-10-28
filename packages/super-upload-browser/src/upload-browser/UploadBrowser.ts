@@ -1,8 +1,10 @@
-import { ChunkUploader, ChunkUploadProps } from "@yxzq-super-cloud/super-upload-core"
+import { ChunkUploader, ChunkUploadProps } from '@yxzq-super-cloud/super-upload-core'
 
 export interface UploadBrowserOptions {
     endpoint: string  // 上传接口地址
     checkFileUrl: string  // 检查文件接口地址
+    readUrl: string  // 获取文件地址
+    readFileNameUrl: string  // 获取文件名
 }
 
 export class UploadBrowser implements ChunkUploader {
@@ -17,6 +19,8 @@ export class UploadBrowser implements ChunkUploader {
         form.append('index', props.index.toString())
         form.append('chunk', props.chunk)
         form.append('total', props.total.toString())
+        form.append('hash', props.hash)
+        form.append('fileName', props.fileName)
         const res = await fetch(this.uplpadBrowserOptions.endpoint, { method: 'POST', body: form })
         if (!res.ok) {
             throw new Error(`Chunk ${props.index} upload failed`)
@@ -31,5 +35,18 @@ export class UploadBrowser implements ChunkUploader {
             throw new Error(`failed`)
         }
         return await res.json()
+    }
+
+    readFileByStream = async (fileId: string) => {
+        // 获取文件
+        const res = await fetch(`${this.uplpadBrowserOptions.readUrl}?fileId=${encodeURIComponent(fileId)}`)
+        const blob = await res.blob()
+        // 获取文件名
+        const resName = await fetch(`${this.uplpadBrowserOptions.readFileNameUrl}?fileId=${encodeURIComponent(fileId)}`)
+        const name = await resName.json()
+        return {
+            fileName: name,
+            file: blob
+        }
     }
 }
