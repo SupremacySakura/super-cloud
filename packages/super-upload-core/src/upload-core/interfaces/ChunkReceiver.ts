@@ -7,4 +7,11 @@ export interface ChunkReceiver {
      * @param total 总分片数
      */
     receiveChunk(fileId: string, index: number, chunk: Blob, total: number): Promise<any>
+
+    /**
+     * 检查还有多少片段未上传
+     * @param fileId 文件id
+     * @param total 片段总数
+     */
+    checkFile(fileId: string, total: number): Promise<Array<number>>
 }

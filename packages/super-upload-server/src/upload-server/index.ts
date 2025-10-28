@@ -1,37 +1,36 @@
 import { ChunkReceiver } from "@yxzq-super-cloud/super-upload-core"
-import fs from "fs"
-import path from "path"
+import { UploadStorage, UploadStorageValue } from "../index"
 
 export class UploadServer implements ChunkReceiver {
-    FileMap: Map<string, {
-        total: number,
-        chunks: {
-            index: number,
-            chunk: Blob
-        }[]
-    }> = new Map()
+    private uploadStorage: UploadStorage
+    constructor(uploadStorage: UploadStorage) {
+        this.uploadStorage = uploadStorage
+    }
     async receiveChunk(fileId: string, index: number, chunk: Blob, total: number): Promise<any> {
-        const hasFile = this.FileMap.has(fileId)
+        const hasFile = await this.uploadStorage.hasFile(fileId)
         if (!hasFile) {
-            this.FileMap.set(fileId, {
+            this.uploadStorage.setFile(fileId, {
                 total,
                 chunks: []
             })
         }
-        const file = this.FileMap.get(fileId)!
-        file.chunks.push({
-            index,
-            chunk
-        })
-        const uploadDir = path.join(process.cwd(), 'uploads', fileId)
-        if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true })
-
-        const buffer = Buffer.from(await chunk.arrayBuffer())
-        fs.writeFileSync(path.join(uploadDir, index.toString()), buffer)
+        this.uploadStorage.addFileChunk(fileId, { index, chunk })
 
         return Promise.resolve({
             isFinish: index === total - 1,
             fileId
         })
+    }
+    async checkFile(fileId: string, total: number): Promise<Array<number>> {
+        const hasFile = await this.uploadStorage.hasFile(fileId)
+        if (hasFile) {
+            const uploadedIndexes = (await this.uploadStorage.getFile(fileId)! as UploadStorageValue).chunks.map(chunk => chunk.index)
+            const uploaded = new Set(uploadedIndexes)
+            const missingIndexes = Array.from({ length: total }, (_, i) => i)
+                .filter(i => !uploaded.has(i))
+            return missingIndexes
+        }
+        const result = Array.from({ length: total }, (_, i) => i)
+        return result
     }
 }

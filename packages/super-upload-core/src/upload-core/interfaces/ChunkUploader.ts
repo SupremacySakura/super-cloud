@@ -1,3 +1,10 @@
+export interface ChunkUploadProps {
+    fileId: string
+    index: number
+    chunk: Blob
+    total: number
+}
+
 export interface ChunkUploader {
     /**
      * 上传单个分片
@@ -6,5 +13,12 @@ export interface ChunkUploader {
      * @param chunk  分片内容
      * @param total 总分片数
      */
-    uploadChunk(fileId: string, index: number, chunk: Blob, total: number): Promise<any>
+    uploadChunk(props: ChunkUploadProps): Promise<any>
+
+    /**
+     * 检查还有多少片段未上传
+     * @param fileId 文件id
+     * @param total 片段总数
+     */
+    checkFile(fileId: string, total: number): Promise<Array<number>>
 }

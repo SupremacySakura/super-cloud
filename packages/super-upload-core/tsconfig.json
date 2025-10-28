@@ -24,8 +24,10 @@
     },
     "include": [
         "src/**/*",
-        "src/**/*.d.ts"
-, "../super-upload-server/src/upload-server"    ],
+        "src/**/*.d.ts",
+        "../super-upload-server/src/upload-server",
+        "../super-upload-server/src/upload-storage"
+    ],
     "exclude": [
         "dist",
         "node_modules"
