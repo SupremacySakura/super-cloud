@@ -1,40 +1,35 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { UploadCore } from '@yxzq-super-cloud/super-upload-core'
-import { UploadBrowser } from '@yxzq-super-cloud/super-upload-browser'
+import { UploadCore } from '@yxzq-super-cloud/super-upload'
+import { UploadBrowser } from '@yxzq-super-cloud/super-upload'
 
 
 export default function Home() {
   const [progress, setProgress] = useState(0)
-  const uploadCoreRef = useRef<UploadCore | null>(null)
+  const core = new UploadCore({
+    chunkSize: 255 * 1024,  // 分块大小
+    concurrency: 3,  // 并发数量配置
+    onProgress: setProgress  // 进度回调
+  })
+  const uploadBrowser = new UploadBrowser(core, {
+    endpoint: '/api/upload',  // 上传接口地址
+    checkFileUrl: '/api/upload/checkFile',  // 检查文件接口地址
+    readUrl: '/api/download',  // 获取文件地址
+    readFileNameUrl: '/api/upload/fileName',  // 获取文件名
+  })
   const [fileId, setFileId] = useState('')
-
-  if (!uploadCoreRef.current) {
-    const uploadBrowser = new UploadBrowser({
-      endpoint: '/api/upload',
-      checkFileUrl: '/api/upload/checkFile',
-      readUrl: '/api/download',
-      readFileNameUrl: '/api/upload/fileName'
-    })
-    uploadCoreRef.current = new UploadCore(uploadBrowser, {
-      chunkSize: 255 * 1024,
-      onProgress: setProgress
-    })
-  }
-
-  const uploadCore = uploadCoreRef.current
   async function simpleUpload(file: File) {
-    const { fileId } = await uploadCore.start(file)
+    const { fileId } = await uploadBrowser.start(file)
     setFileId(fileId)
   }
 
   async function downloadFile() {
     console.log('download,fileId', fileId)
-    const res = await uploadCore.readFile(fileId)
+    const res = await uploadBrowser.readFileByStream(fileId)
     const url = URL.createObjectURL(res.file)
     const a = document.createElement('a')
     a.href = url
-    console.log('result',res)
+    console.log('result', res)
     a.download = res.fileName
     a.click()
   }
@@ -48,10 +43,12 @@ export default function Home() {
     downloadFile()
   }
   const handlePause = () => {
-    uploadCore.pause()
+    uploadBrowser.pause()
   }
   const handleResume = () => {
-    uploadCore.resume()
+    if (file) {
+      uploadBrowser.resume(file)
+    }
   }
   const [file, setFile] = useState<File>()
   useEffect(() => {

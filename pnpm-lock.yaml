@@ -196,15 +196,9 @@ importers:
       '@yxzq-super-cloud/super-request-utils':
         specifier: workspace:*
         version: link:../../packages/super-request-utils
-      '@yxzq-super-cloud/super-upload-browser':
+      '@yxzq-super-cloud/super-upload':
         specifier: workspace:*
-        version: link:../../packages/super-upload-browser
-      '@yxzq-super-cloud/super-upload-core':
-        specifier: workspace:*
-        version: link:../../packages/super-upload-core
-      '@yxzq-super-cloud/super-upload-server':
-        specifier: workspace:*
-        version: link:../../packages/super-upload-server
+        version: link:../../packages/super-upload
       next:
         specifier: 16.0.0-beta.0
         version: 16.0.0-beta.0(@babel/core@7.28.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -268,38 +262,7 @@ importers:
         specifier: ^0.36.0
         version: 0.36.0(rollup@4.52.5)(typescript@5.8.3)
 
-  packages/super-upload-browser:
-    dependencies:
-      '@yxzq-super-cloud/super-upload-core':
-        specifier: workspace:*
-        version: link:../super-upload-core
-    devDependencies:
-      '@rollup/plugin-commonjs':
-        specifier: ^28.0.8
-        version: 28.0.8(rollup@4.52.5)
-      '@rollup/plugin-node-resolve':
-        specifier: ^16.0.3
-        version: 16.0.3(rollup@4.52.5)
-      '@rollup/plugin-typescript':
-        specifier: ^12.1.4
-        version: 12.1.4(rollup@4.52.5)(tslib@2.8.1)(typescript@5.8.3)
-      '@types/node':
-        specifier: ^24.9.1
-        version: 24.9.1
-      rimraf:
-        specifier: ^6.0.1
-        version: 6.0.1
-      rollup:
-        specifier: ^4.52.5
-        version: 4.52.5
-      rollup-plugin-dts:
-        specifier: ^6.2.3
-        version: 6.2.3(rollup@4.52.5)(typescript@5.8.3)
-      rollup-plugin-typescript2:
-        specifier: ^0.36.0
-        version: 0.36.0(rollup@4.52.5)(typescript@5.8.3)
-
-  packages/super-upload-core:
+  packages/super-upload:
     dependencies:
       spark-md5:
         specifier: ^3.0.2
@@ -320,37 +283,6 @@ importers:
       '@types/spark-md5':
         specifier: ^3.0.5
         version: 3.0.5
-      rimraf:
-        specifier: ^6.0.1
-        version: 6.0.1
-      rollup:
-        specifier: ^4.52.5
-        version: 4.52.5
-      rollup-plugin-dts:
-        specifier: ^6.2.3
-        version: 6.2.3(rollup@4.52.5)(typescript@5.8.3)
-      rollup-plugin-typescript2:
-        specifier: ^0.36.0
-        version: 0.36.0(rollup@4.52.5)(typescript@5.8.3)
-
-  packages/super-upload-server:
-    dependencies:
-      '@yxzq-super-cloud/super-upload-core':
-        specifier: workspace:*
-        version: link:../super-upload-core
-    devDependencies:
-      '@rollup/plugin-commonjs':
-        specifier: ^28.0.8
-        version: 28.0.8(rollup@4.52.5)
-      '@rollup/plugin-node-resolve':
-        specifier: ^16.0.3
-        version: 16.0.3(rollup@4.52.5)
-      '@rollup/plugin-typescript':
-        specifier: ^12.1.4
-        version: 12.1.4(rollup@4.52.5)(tslib@2.8.1)(typescript@5.8.3)
-      '@types/node':
-        specifier: ^24.9.1
-        version: 24.9.1
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -5175,7 +5107,7 @@ snapshots:
   '@types/fs-extra@11.0.4':
     dependencies:
       '@types/jsonfile': 6.1.4
-      '@types/node': 24.0.15
+      '@types/node': 24.9.1
 
   '@types/http-assert@1.5.6': {}
 

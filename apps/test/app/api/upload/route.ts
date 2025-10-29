@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { UploadServer, InternalStorage } from '@yxzq-super-cloud/super-upload-server'
+import { UploadServer, InternalStorage } from '@yxzq-super-cloud/super-upload/server'
 
 export const runtime = 'nodejs'
 
