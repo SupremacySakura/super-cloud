@@ -1,36 +1,34 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { UploadCore } from '@yxzq-super-cloud/super-upload'
 import { UploadBrowser } from '@yxzq-super-cloud/super-upload'
 
-
+const core = new UploadCore({
+  chunkSize: 255 * 1024,  // 分块大小
+  concurrency: 3,  // 并发数量配置
+})
+const uploadBrowser = new UploadBrowser(core, {
+  uploadUrl: '/api/upload',  // 上传接口地址
+  checkFileUrl: '/api/upload/checkFile',  // 检查文件接口地址
+  readFileUrl: '/api/download',  // 获取文件地址
+  readFileNameUrl: '/api/upload/fileName',  // 获取文件名
+})
 export default function Home() {
   const [progress, setProgress] = useState(0)
-  const core = new UploadCore({
-    chunkSize: 255 * 1024,  // 分块大小
-    concurrency: 3,  // 并发数量配置
-    onProgress: setProgress  // 进度回调
-  })
-  const uploadBrowser = new UploadBrowser(core, {
-    endpoint: '/api/upload',  // 上传接口地址
-    checkFileUrl: '/api/upload/checkFile',  // 检查文件接口地址
-    readUrl: '/api/download',  // 获取文件地址
-    readFileNameUrl: '/api/upload/fileName',  // 获取文件名
-  })
   const [fileId, setFileId] = useState('')
   async function simpleUpload(file: File) {
-    const { fileId } = await uploadBrowser.start(file)
+    const { fileId } = await uploadBrowser.start(file, setProgress)
     setFileId(fileId)
   }
 
   async function downloadFile() {
     console.log('download,fileId', fileId)
-    const res = await uploadBrowser.readFileByStream(fileId)
-    const url = URL.createObjectURL(res.file)
+    const file = await uploadBrowser.readFileByStream(fileId)
+    const fileName = await uploadBrowser.readFileName(fileId)
+    const url = URL.createObjectURL(file)
     const a = document.createElement('a')
     a.href = url
-    console.log('result', res)
-    a.download = res.fileName
+    a.download = fileName
     a.click()
   }
   const handleRequest = async () => {
@@ -47,7 +45,7 @@ export default function Home() {
   }
   const handleResume = () => {
     if (file) {
-      uploadBrowser.resume(file)
+      uploadBrowser.resume(file, setProgress)
     }
   }
   const [file, setFile] = useState<File>()

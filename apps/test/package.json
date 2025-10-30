@@ -1,6 +1,6 @@
 {
   "name": "@yxzq-super-cloud/test",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@yxzq-super-cloud/super-request-utils": "workspace:*",
-    "@yxzq-super-cloud/super-upload":"workspace:*",
+    "@yxzq-super-cloud/super-upload": "workspace:*",
     "next": "16.0.0-beta.0",
     "react": "19.1.0",
     "react-dom": "19.1.0"

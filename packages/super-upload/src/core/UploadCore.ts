@@ -21,21 +21,31 @@ export class UploadCore {
      * 存储UploadCoreOptions配置，包含chunkSize、concurrency、onProgress等配置项
      */
     private options: UploadCoreOptions
-    
+
     /**
      * 暂停标记
      * 
      * 用于控制上传任务的暂停和恢复状态
      */
     private pauseFlag = { paused: false }
-    
+
     /**
      * 待完成任务列表
      * 
      * 存储上一次执行时待完成的任务包装函数，用于恢复上传时使用
      */
     private pendingTaskWrappers: (() => Promise<void>)[] = []
-    
+
+
+    /**
+     * 设置上传配置
+     * 
+     * @param options - 上传核心配置选项
+     */
+    setOptions = (options: UploadCoreOptions) => {
+        this.options = options
+    }
+
     /**
      * 构造函数
      * 
@@ -56,7 +66,7 @@ export class UploadCore {
     getFileId = (file: File) => {
         return `${file.name}-${file.size}`
     }
-    
+
     /**
      * 创建上传任务
      * 
@@ -68,12 +78,12 @@ export class UploadCore {
     creatTasks = async (file: File): Promise<UploadTask[]> => {
         // 文件分块
         const chunks = createChunks(file, this.options.chunkSize)
-        
+
         // 计算每个分片的哈希值
         const chunkHashes = await Promise.all(
             chunks.map(chunk => calcChunkHash(chunk.blob))
         )
-        
+
         // 生成任务
         const tasks = chunks.map((chunk, index) => {
             return {
@@ -85,7 +95,7 @@ export class UploadCore {
                 hash: chunkHashes[index]
             }
         })
-        
+
         return tasks
     }
 
@@ -100,10 +110,11 @@ export class UploadCore {
      * @returns Promise<{fileId: string, success: number, failed: number, total: number}> - 上传结果对象
      */
     runWithUploader = async (
-        file: File, 
-        tasks: UploadTask[], 
-        uploaderFn: (task: UploadTask) => Promise<any>
-    ): Promise<{fileId: string, success: number, failed: number, total: number}> => {
+        file: File,
+        tasks: UploadTask[],
+        uploaderFn: (task: UploadTask) => Promise<any>,
+        onProgress?: (p: number) => void
+    ): Promise<{ fileId: string, success: number, failed: number, total: number }> => {
         // 重置暂停状态
         this.pauseFlag.paused = false
         let total = tasks.length
@@ -116,18 +127,18 @@ export class UploadCore {
                 }
             })
         }
-        
+
         // 获取并发数，默认为3
         const concurrency = this.options.concurrency ?? 3
-        
+
         // 执行并发任务
         const { success, failed } = await runWithConcurrency(
-            this.pendingTaskWrappers, 
-            concurrency, 
+            this.pendingTaskWrappers,
+            concurrency,
             (p) => {
                 // 调用进度回调
-                this.options.onProgress?.(p)
-            }, 
+                onProgress?.(p)
+            },
             this.pauseFlag
         )
 
@@ -156,23 +167,25 @@ export class UploadCore {
      * 
      * @param file - 要继续上传的File对象
      * @param uploaderFn - 上传函数，负责单个分片的上传逻辑
+     * @param onProgress - 进度回调函数
      * @returns Promise<{fileId: string, success: number, failed: number, total: number}> - 上传结果对象
      */
     resume = async (
-        file: File, 
-        uploaderFn: (task: UploadTask) => Promise<any>
-    ): Promise<{fileId: string, success: number, failed: number, total: number}> => {
+        file: File,
+        uploaderFn: (task: UploadTask) => Promise<any>,
+        onProgress?: (p: number) => void
+    ): Promise<{ fileId: string, success: number, failed: number, total: number }> => {
         // 检查是否有待恢复的任务
         if (!this.pendingTaskWrappers.length) {
             console.warn('没有需要继续的任务')
             return { fileId: this.getFileId(file), success: 0, failed: 0, total: 0 }
         }
-        
+
         // 重置暂停状态
         this.pauseFlag.paused = false
-        
+
         // 重启workers来继续处理pendingTaskWrappers
         // 注意：传入的tasks参数为空，这里runWithUploader会基于现有pendingTaskWrappers重新执行
-        return this.runWithUploader(file, [], uploaderFn)
+        return this.runWithUploader(file, [], uploaderFn,onProgress)
     }
 }

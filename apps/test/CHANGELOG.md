@@ -1,5 +1,12 @@
 # test
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies
+  - @yxzq-super-cloud/super-upload@1.0.0
+
 ## 0.1.2
 
 ### Patch Changes

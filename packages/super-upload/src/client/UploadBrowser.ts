@@ -18,21 +18,21 @@ export interface UploadBrowserOptions {
      * 用于向服务器上传单个文件分片的HTTP接口
      */
     uploadUrl: string
-    
+
     /**
      * 文件检查接口地址
      * 
      * 用于检查文件是否已上传过及获取已上传分片信息的接口
      */
     checkFileUrl: string
-    
+
     /**
      * 文件读取接口地址
      * 
      * 用于通过fileId获取完整文件内容的接口
      */
     readFileUrl: string
-    
+
     /**
      * 文件名读取接口地址
      * 
@@ -53,14 +53,14 @@ export class UploadBrowser {
      * 存储UploadBrowserOptions配置对象，包含所有API端点地址
      */
     private uplpadBrowserOptions: UploadBrowserOptions
-    
+
     /**
      * 上传核心实例
      * 
      * 用于处理文件分片、任务管理等核心功能的UploadCore实例
      */
     private core: UploadCore
-    
+
     /**
      * 构造函数
      * 
@@ -71,7 +71,7 @@ export class UploadBrowser {
         this.core = core
         this.uplpadBrowserOptions = options
     }
-    
+
     /**
      * 上传单个分片
      * 
@@ -89,16 +89,16 @@ export class UploadBrowser {
         form.append('total', tasks.total.toString())
         form.append('hash', tasks.hash)
         form.append('fileName', tasks.fileName)
-        
-        const res = await fetch(this.uplpadBrowserOptions.uploadUrl, { 
-            method: 'POST', 
-            body: form 
+
+        const res = await fetch(this.uplpadBrowserOptions.uploadUrl, {
+            method: 'POST',
+            body: form
         })
-        
+
         if (!res.ok) {
             throw new Error(`Chunk ${tasks.index} upload failed`)
         }
-        
+
         return await res.json()
     }
 
@@ -110,19 +110,19 @@ export class UploadBrowser {
      * @param file - 待上传的File对象
      * @returns Promise<any> - 上传完成后的结果
      */
-    start = async (file: File) => {
+    start = async (file: File, onProgress?: (p: number) => void) => {
         // 创建上传任务
         const tasks = await this.core.creatTasks(file)
-        
+
         // 检查文件已上传分片
         const needUpload = await this.checkFile(tasks[0].fileId, tasks[0].total)
         const needUploadSet = new Set(needUpload)
-        
+
         // 过滤出需要上传的分片
         const needUploadTasks = tasks.filter((item) => needUploadSet.has(item.index))
-        
+
         // 执行上传
-        const res = await this.core.runWithUploader(file, needUploadTasks, this.uploadChunk)
+        const res = await this.core.runWithUploader(file, needUploadTasks, this.uploadChunk, onProgress)
         return res
     }
 
@@ -142,10 +142,10 @@ export class UploadBrowser {
      * 
      * @param file - 要继续上传的File对象
      */
-    resume = async (file: File) => {
-        this.core.resume(file, this.uploadChunk)
+    resume = async (file: File, onProgress?: (p: number) => void) => {
+        this.core.resume(file, this.uploadChunk, onProgress)
     }
-    
+
     /**
      * 检查文件上传状态
      * 
@@ -160,11 +160,11 @@ export class UploadBrowser {
         const res = await fetch(`${this.uplpadBrowserOptions.checkFileUrl}?fileId=${fileId}&total=${total}`, {
             method: 'GET',
         })
-        
+
         if (!res.ok) {
             throw new Error('文件检查失败')
         }
-        
+
         return await res.json()
     }
 

@@ -6,7 +6,7 @@
 
 import path from 'path'
 import fs from 'fs'
-import { UploadStorage, UploadStorageValue } from '../interfaces/UploadStorage'
+import { UploadStorage, UploadStorageValue } from './interfaces/UploadStorage'
 
 /**
  * 内部存储类

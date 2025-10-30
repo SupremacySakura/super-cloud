@@ -5,8 +5,8 @@
  */
 
 import { UploadServer } from './upload-server/UploadServer'
-import type { UploadStorage, UploadStorageValue } from './upload-storage'
-import { InternalStorage } from './upload-storage'
+import type { UploadStorage, UploadStorageValue } from './upload-storage/interfaces/UploadStorage'
+import { InternalStorage } from './upload-storage/InternalStorage'
 
 /**
  * 导出上传相关的核心类和接口
@@ -20,7 +20,7 @@ export {
      * 处理分片接收、文件检查和文件读取等核心上传功能
      */
     UploadServer,
-    
+
     /**
      * 内部存储实现类
      * 
@@ -36,7 +36,7 @@ export type {
      * 定义文件存储的抽象接口，支持不同的存储实现
      */
     UploadStorage,
-    
+
     /**
      * 上传存储数据结构
      * 

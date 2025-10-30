@@ -70,13 +70,6 @@ export interface UploadCoreOptions {
      * 控制同时进行的上传任务数量，默认值为3
      */
     concurrency?: number
-    
-    /**
-     * 进度回调函数
-     * 
-     * 在上传进度更新时被调用，接收0-100的进度百分比
-     */
-    onProgress?: (progress: number) => void
 }
 
 /**

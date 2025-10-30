@@ -1,6 +1,6 @@
 {
   "name": "@yxzq-super-cloud/super-upload",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "main": "dist/index.js",
   "description": "@yxzq-super-cloud/super-upload",
   "type": "module",
