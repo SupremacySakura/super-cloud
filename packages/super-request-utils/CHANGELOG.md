@@ -1,5 +1,11 @@
 # @super-cloud/super-request-utils
 
+## 1.2.0
+
+### Minor Changes
+
+- request-core 新增 get,post,put,delete 方法 修复一些类型问题 修改文档
+
 ## 1.1.0
 
 ### Minor Changes

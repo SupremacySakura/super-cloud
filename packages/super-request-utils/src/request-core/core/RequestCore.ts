@@ -15,7 +15,7 @@ interface RequestCoreOptions {
      * 默认值：60000（60秒）
      */
     timeout?: number
-    
+
     /**
      * API请求的基础URL地址
      * 
@@ -23,7 +23,7 @@ interface RequestCoreOptions {
      * 默认值：空字符串
      */
     baseUrl?: string
-    
+
     /**
      * 是否允许请求携带Cookie信息
      * 
@@ -46,14 +46,14 @@ export class RequestCore {
      * 负责实际发送HTTP请求的对象，需实现Requester接口
      */
     private requester: Requester
-    
+
     /**
      * 已注册的请求插件列表
      * 
      * 用于存储所有通过use方法注册的插件
      */
     private requestPlugins: RequestPlugin[] = []
-    
+
     /**
      * 请求核心配置选项
      * 
@@ -75,7 +75,7 @@ export class RequestCore {
         this.requestPlugins.push(plugin)
         return this
     }
-    
+
     /**
      * 移除已注册的请求插件
      * 
@@ -86,7 +86,7 @@ export class RequestCore {
         this.requestPlugins = this.requestPlugins.filter((item) => item !== plugin)
         return this
     }
-    
+
     /**
      * 发起HTTP请求
      * 
@@ -104,11 +104,11 @@ export class RequestCore {
             const defaultTimeOut = this.requestCoreOptions?.timeout
             const defaultWithCredentials = this.requestCoreOptions?.withCredentials
             const baseUrl = config.baseUrl || this.requestCoreOptions?.baseUrl
-            config = { 
-                timeout: defaultTimeOut, 
-                withCredentials: defaultWithCredentials, 
-                ...config, 
-                url: `${baseUrl + config?.url}` 
+            config = {
+                timeout: defaultTimeOut,
+                withCredentials: defaultWithCredentials,
+                ...config,
+                url: `${baseUrl + config?.url}`
             }
 
             // 执行所有插件的beforeRequest钩子
@@ -129,12 +129,12 @@ export class RequestCore {
                     config = result as RequestConfig
                 }
             }
-            
+
             // 发送请求（带超时处理）
             const timeout = config.timeout || this.requestCoreOptions.timeout || 0
             const requestPromise = this.requester.request<T>(config)
             let response: Response<T>
-            
+
             // 实现超时逻辑
             if (timeout > 0) {
                 response = await Promise.race([
@@ -149,14 +149,14 @@ export class RequestCore {
             } else {
                 response = await requestPromise
             }
-            
+
             // 执行所有插件的afterResponse钩子
             for (const plugin of this.requestPlugins) {
                 if (plugin.afterResponse) {
                     response = await plugin.afterResponse(response)
                 }
             }
-            
+
             return Promise.resolve(response)
         } catch (error) {
             // 封装错误对象
@@ -165,7 +165,7 @@ export class RequestCore {
                 config
             }
             let currentError = newError
-            
+
             // 执行所有插件的onError钩子进行错误处理
             for (const plugin of this.requestPlugins) {
                 if (plugin.onError) {
@@ -176,10 +176,78 @@ export class RequestCore {
                     }
                 }
             }
-            
+
             // 如果错误没有被任何插件处理，则向上抛出
             return Promise.reject(currentError)
         }
+    }
+
+    /**
+     * 发送GET请求
+     * 
+     * 用于获取数据，不会修改服务器状态。
+     * 
+     * @async
+     * @template T - 响应数据的类型参数
+     * @param {string} url - 请求的URL地址
+     * @param {Omit<RequestConfig, 'method' | 'url'>} config - 请求配置对象（不包含method和url）
+     * @returns {Promise<Response<T>>} 返回一个Promise，解析为响应对象
+     * @throws {RequestError} 当请求失败时抛出错误
+     */
+    public get = async <T = any>(url: string, config: Omit<RequestConfig, 'method' | 'url'>): Promise<Response<T>> => {
+        const newConfig: RequestConfig = { ...config, url, method: 'GET' }
+        return this.request<T>(newConfig)
+    }
+
+    /**
+     * 发送POST请求
+     * 
+     * 用于提交数据，常用于创建资源或执行需要服务器处理的操作。
+     * 
+     * @async
+     * @template T - 响应数据的类型参数
+     * @param {string} url - 请求的URL地址
+     * @param {Omit<RequestConfig, 'method' | 'url'>} config - 请求配置对象（不包含method和url）
+     * @returns {Promise<Response<T>>} 返回一个Promise，解析为响应对象
+     * @throws {RequestError} 当请求失败时抛出错误
+     */
+    public post = async <T = any>(url: string, config: Omit<RequestConfig, 'method' | 'url'>): Promise<Response<T>> => {
+        const newConfig: RequestConfig = { ...config, url, method: 'POST' }
+        return this.request<T>(newConfig)
+    }
+
+    /**
+     * 发送PUT请求
+     * 
+     * 用于更新资源，通常需要提供完整的资源表示。
+     * 
+     * @async
+     * @template T - 响应数据的类型参数
+     * @param {string} url - 请求的URL地址
+     * @param {Omit<RequestConfig, 'method' | 'url'>} config - 请求配置对象（不包含method和url）
+     * @returns {Promise<Response<T>>} 返回一个Promise，解析为响应对象
+     * @throws {RequestError} 当请求失败时抛出错误
+     */
+    public put = async <T = any>(url: string, config: Omit<RequestConfig, 'method' | 'url'>): Promise<Response<T>> => {
+        const newConfig: RequestConfig = { ...config, url, method: 'PUT' }
+        return this.request<T>(newConfig)
+    }
+
+    /**
+     * 发送DELETE请求
+     * 
+     * 用于删除指定的资源。
+     * 
+     * @async
+     * @template T - 响应数据的类型参数
+     * @param {string} url - 请求的URL地址
+     * @param {Omit<RequestConfig, 'method' | 'url'>} config - 请求配置对象（不包含method和url）
+     * @returns {Promise<Response<T>>} 返回一个Promise，解析为响应对象
+     * @throws {RequestError} 当请求失败时抛出错误
+     */
+    public delete = async <T = any>(url: string, config: Omit<RequestConfig, 'method' | 'url'>): Promise<Response<T>> => {
+        const newConfig: RequestConfig = { ...config, url, method: 'DELETE' }
+        return this.request<T>(newConfig)
     }
 
     /**
@@ -195,7 +263,7 @@ export class RequestCore {
         }
         return this
     }
-    
+
     /**
      * RequestCore构造函数
      * 

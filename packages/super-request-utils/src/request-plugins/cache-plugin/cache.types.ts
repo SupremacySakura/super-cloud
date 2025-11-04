@@ -93,6 +93,6 @@ declare module '../../request-core/types' {
          * 
          * 为单个请求提供特定的缓存配置 需要使用cache-plugin之后才会生效
          */
-        cacheOptions: RequestCacheOptions
+        cacheOptions?: RequestCacheOptions
     }
 }
