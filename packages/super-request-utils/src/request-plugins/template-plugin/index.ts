@@ -17,15 +17,15 @@ import { RequestConfig, Response } from "../../request-core/types"
  * @template T - 插件扩展方法的类型参数，此处为undefined
  * @returns 基础模板插件实例，无额外方法扩展
  */
-export const useTemplatePlugin = (): RequestPlugin<undefined> => {
+export const useTemplatePlugin = (): RequestPlugin<RequestConfig, undefined> => {
     return {
         /**
          * 插件名称
          * 
          * 标识当前插件的唯一名称，用于调试和日志记录
          */
-        name: 'template-plugin',
-        
+        name: Symbol('template-plugin'),
+
         /**
          * 请求前钩子函数
          * 
@@ -39,7 +39,7 @@ export const useTemplatePlugin = (): RequestPlugin<undefined> => {
             // 此处可以修改请求配置，例如添加请求头、修改URL等
             return config
         },
-        
+
         /**
          * 响应后钩子函数
          * 
@@ -52,7 +52,7 @@ export const useTemplatePlugin = (): RequestPlugin<undefined> => {
             // 此处可以处理响应数据，例如转换格式、提取信息等
             return response
         },
-        
+
         /**
          * 错误处理钩子函数
          * 
@@ -65,7 +65,7 @@ export const useTemplatePlugin = (): RequestPlugin<undefined> => {
             // 此处可以处理请求错误，例如添加错误日志、转换错误格式等
             return error
         },
-        
+
         /**
          * 插件扩展方法
          * 

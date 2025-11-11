@@ -62,34 +62,3 @@ export interface RequestIdempotencyOptions {
      */
     idempotentKey?: string
 }
-
-// 临时解决方案：用于plugin代码提示和打包
-// 由于rollup打包工具的一些问题，暂时这样使用
-declare module '../' {
-    /**
-     * 扩展请求配置接口，添加幂等选项
-     */
-    interface RequestConfig {
-        /**
-         * 请求级幂等配置选项
-         * 
-         * 为单个请求提供特定的幂等配置 需要使用idempotency-plugin之后才会生效
-         */
-        idempotencyOptions?: RequestIdempotencyOptions
-    }
-}
-
-// 临时解决方案：用于plugin代码提示
-declare module '../../request-core/types' {
-    /**
-     * 扩展核心请求配置接口，添加幂等选项
-     */
-    interface RequestConfig {
-        /**
-         * 请求级幂等配置选项
-         * 
-         * 为单个请求提供特定的幂等配置 需要使用idempotency-plugin之后才会生效
-         */
-        idempotencyOptions?: RequestIdempotencyOptions
-    }
-}

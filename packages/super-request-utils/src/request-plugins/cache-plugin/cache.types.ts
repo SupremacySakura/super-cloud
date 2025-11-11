@@ -65,34 +65,3 @@ export interface CacheOptions extends RequestCacheOptions {
      */
     maxCacheSize?: number
 }
-
-// 临时解决方案：用于plugin代码提示和打包
-// 由于rollup打包工具的一些问题，暂时这样使用
-declare module '../' {
-    /**
-     * 扩展请求配置接口，添加缓存选项
-     */
-    interface RequestConfig {
-        /**
-         * 请求级缓存选项
-         * 
-         * 为单个请求提供特定的缓存配置 需要使用cache-plugin之后才会生效
-         */
-        cacheOptions?: RequestCacheOptions
-    }
-}
-
-// 临时解决方案：用于plugin代码提示
-declare module '../../request-core/types' {
-    /**
-     * 扩展核心请求配置接口，添加缓存选项
-     */
-    interface RequestConfig {
-        /**
-         * 请求级缓存选项
-         * 
-         * 为单个请求提供特定的缓存配置 需要使用cache-plugin之后才会生效
-         */
-        cacheOptions?: RequestCacheOptions
-    }
-}

@@ -74,8 +74,4 @@ export interface RequestConfig {
      */
     signal?: AbortSignal
 
-    /**
-     * 支持插件自定义类型
-     */
-    [key: string]: any
 }

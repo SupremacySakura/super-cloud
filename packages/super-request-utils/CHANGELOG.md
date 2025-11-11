@@ -1,5 +1,11 @@
 # @super-cloud/super-request-utils
 
+## 2.0.0
+
+### Major Changes
+
+- 新增插件可以获取到请求实例 完善类型提示 修改重试插件的使用方式 修改 RequestCore 核心代码
+
 ## 1.2.0
 
 ### Minor Changes

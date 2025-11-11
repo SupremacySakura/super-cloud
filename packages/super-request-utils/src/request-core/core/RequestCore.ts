@@ -39,7 +39,7 @@ interface RequestCoreOptions {
  * 该类是整个请求库的核心，负责协调请求执行流程、管理插件系统、处理错误和超时等通用逻辑。
  * 通过依赖注入的方式支持不同的底层请求实现（如Axios、Fetch等）。
  */
-export class RequestCore {
+export class RequestCore<C extends RequestConfig> {
     /**
      * 底层请求实现实例
      * 
@@ -52,7 +52,7 @@ export class RequestCore {
      * 
      * 用于存储所有通过use方法注册的插件
      */
-    private requestPlugins: RequestPlugin[] = []
+    private requestPlugins: RequestPlugin<any>[] = []
 
     /**
      * 请求核心配置选项
@@ -71,9 +71,9 @@ export class RequestCore {
      * @param {RequestPlugin} plugin - 要注册的请求插件实例
      * @returns {RequestCore} 当前RequestCore实例，支持链式调用
      */
-    public use = (plugin: RequestPlugin): RequestCore => {
-        this.requestPlugins.push(plugin)
-        return this
+    public use = <EC extends RequestConfig, R>(plugin: RequestPlugin<EC, R>): RequestCore<C & EC> => {
+        const newPlugins = [...this.requestPlugins, plugin]
+        return new RequestCore<C & EC>(this.requester, this.requestCoreOptions, newPlugins)
     }
 
     /**
@@ -82,9 +82,9 @@ export class RequestCore {
      * @param {RequestPlugin} plugin - 要移除的插件实例（通过引用比较）
      * @returns {RequestCore} 当前RequestCore实例，支持链式调用
      */
-    public eject = (plugin: RequestPlugin): RequestCore => {
-        this.requestPlugins = this.requestPlugins.filter((item) => item !== plugin)
-        return this
+    public eject = <P extends RequestPlugin>(plugin: P): RequestCore<C> => {
+        const newPlugins = this.requestPlugins.filter((item) => item.name !== plugin.name)
+        return new RequestCore(this.requester, this.requestCoreOptions, newPlugins)
     }
 
     /**
@@ -94,11 +94,11 @@ export class RequestCore {
      * 
      * @async
      * @template T - 响应数据的类型参数
-     * @param {RequestConfig} config - 请求配置对象
+     * @param {C extends RequestConfig} config - 请求配置对象
      * @returns {Promise<Response<T>>} 返回一个Promise，解析为响应对象
      * @throws {RequestError} 当请求失败且没有被插件错误处理器吸收时抛出
      */
-    public request = async <T = any>(config: RequestConfig): Promise<Response<T>> => {
+    public request = async <T = any>(config: C): Promise<Response<T>> => {
         try {
             // 合并默认配置与请求配置
             const defaultTimeOut = this.requestCoreOptions?.timeout
@@ -114,19 +114,19 @@ export class RequestCore {
             // 执行所有插件的beforeRequest钩子
             for (const plugin of this.requestPlugins) {
                 if (plugin.beforeRequest) {
-                    let result = await plugin.beforeRequest<T>(config)
+                    let result = await plugin.beforeRequest<T>(config, this)
                     // 如果插件返回了响应对象，则触发短路逻辑
                     if (isResponse(result)) {
                         // 执行所有afterResponse钩子后直接返回
                         for (const plugin of this.requestPlugins) {
                             if (plugin.afterResponse) {
-                                result = await plugin.afterResponse(result as Response)
+                                result = await plugin.afterResponse(result as Response, this)
                             }
                         }
                         return Promise.resolve(result as Response)
                     }
                     // 更新配置
-                    config = result as RequestConfig
+                    config = result as C
                 }
             }
 
@@ -153,7 +153,7 @@ export class RequestCore {
             // 执行所有插件的afterResponse钩子
             for (const plugin of this.requestPlugins) {
                 if (plugin.afterResponse) {
-                    response = await plugin.afterResponse(response)
+                    response = await plugin.afterResponse(response, this)
                 }
             }
 
@@ -169,7 +169,7 @@ export class RequestCore {
             // 执行所有插件的onError钩子进行错误处理
             for (const plugin of this.requestPlugins) {
                 if (plugin.onError) {
-                    currentError = await plugin.onError(currentError)
+                    currentError = await plugin.onError(currentError, this)
                     // 如果插件返回了包含response的错误对象，则视为错误被处理，返回该response
                     if (Object.prototype.hasOwnProperty.call(currentError, 'response')) {
                         return Promise.resolve(currentError?.response as Response)
@@ -194,8 +194,8 @@ export class RequestCore {
      * @returns {Promise<Response<T>>} 返回一个Promise，解析为响应对象
      * @throws {RequestError} 当请求失败时抛出错误
      */
-    public get = async <T = any>(url: string, config: Omit<RequestConfig, 'method' | 'url'>): Promise<Response<T>> => {
-        const newConfig: RequestConfig = { ...config, url, method: 'GET' }
+    public get = async <T = any>(url: string, config?: Omit<C, 'method' | 'url'>): Promise<Response<T>> => {
+        const newConfig = { ...config, url, method: 'GET' } as C
         return this.request<T>(newConfig)
     }
 
@@ -211,8 +211,8 @@ export class RequestCore {
      * @returns {Promise<Response<T>>} 返回一个Promise，解析为响应对象
      * @throws {RequestError} 当请求失败时抛出错误
      */
-    public post = async <T = any>(url: string, config: Omit<RequestConfig, 'method' | 'url'>): Promise<Response<T>> => {
-        const newConfig: RequestConfig = { ...config, url, method: 'POST' }
+    public post = async <T = any>(url: string, config?: Omit<C, 'method' | 'url'>): Promise<Response<T>> => {
+        const newConfig = { ...config, url, method: 'POST' } as C
         return this.request<T>(newConfig)
     }
 
@@ -228,8 +228,8 @@ export class RequestCore {
      * @returns {Promise<Response<T>>} 返回一个Promise，解析为响应对象
      * @throws {RequestError} 当请求失败时抛出错误
      */
-    public put = async <T = any>(url: string, config: Omit<RequestConfig, 'method' | 'url'>): Promise<Response<T>> => {
-        const newConfig: RequestConfig = { ...config, url, method: 'PUT' }
+    public put = async <T = any>(url: string, config?: Omit<C, 'method' | 'url'>): Promise<Response<T>> => {
+        const newConfig = { ...config, url, method: 'PUT' } as C
         return this.request<T>(newConfig)
     }
 
@@ -245,8 +245,8 @@ export class RequestCore {
      * @returns {Promise<Response<T>>} 返回一个Promise，解析为响应对象
      * @throws {RequestError} 当请求失败时抛出错误
      */
-    public delete = async <T = any>(url: string, config: Omit<RequestConfig, 'method' | 'url'>): Promise<Response<T>> => {
-        const newConfig: RequestConfig = { ...config, url, method: 'DELETE' }
+    public delete = async <T = any>(url: string, config?: Omit<C, 'method' | 'url'>): Promise<Response<T>> => {
+        const newConfig = { ...config, url, method: 'DELETE' } as C
         return this.request<T>(newConfig)
     }
 
@@ -256,7 +256,7 @@ export class RequestCore {
      * @param {RequestCoreOptions} options - 要设置的配置选项
      * @returns {RequestCore} 当前RequestCore实例，支持链式调用
      */
-    public setOptions = (options: RequestCoreOptions): RequestCore => {
+    public setOptions = (options: RequestCoreOptions): RequestCore<C> => {
         this.requestCoreOptions = {
             ...this.requestCoreOptions,
             ...options
@@ -270,10 +270,13 @@ export class RequestCore {
      * @param {Requester} requester - 底层请求实现实例
      * @param {RequestCoreOptions} [options] - 可选的初始化配置
      */
-    constructor(requester: Requester, options?: RequestCoreOptions) {
+    constructor(requester: Requester, options?: RequestCoreOptions, plugins?: RequestPlugin<any>[]) {
         this.requester = requester
         if (options) {
             this.setOptions(options)
+        }
+        if (plugins) {
+            this.requestPlugins = plugins
         }
     }
 }

@@ -59,34 +59,3 @@ export type RequestRetryOptions = RetryOptions & {
      */
     __retryCount?: number
 }
-
-// 临时解决方案：用于plugin代码提示和打包
-// 由于rollup打包工具的一些问题，暂时这样使用
-declare module '../' {
-    /**
-     * 扩展请求配置接口，添加重试选项
-     */
-    interface RequestConfig {
-        /**
-         * 请求级重试配置选项
-         * 
-         * 为单个请求提供特定的重试配置 需要使用retry-plugin之后才会生效
-         */
-        retryOptions?: RequestRetryOptions
-    }
-}
-
-// 临时解决方案：用于plugin代码提示
-declare module '../../request-core/types' {
-    /**
-     * 扩展核心请求配置接口，添加重试选项
-     */
-    interface RequestConfig {
-        /**
-         * 请求级重试配置选项
-         * 
-         * 为单个请求提供特定的重试配置 需要使用retry-plugin之后才会生效
-         */
-        retryOptions?: RequestRetryOptions
-    }
-}

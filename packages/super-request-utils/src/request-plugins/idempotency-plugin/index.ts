@@ -6,8 +6,10 @@
  */
 
 import { RequestPlugin } from "../../request-core/interfaces"
-import { RequestConfig, Response } from "../../request-core/types"
-import { IdempotencyOptions } from "./idempotency.types"
+import { RequestConfig, RequestError, Response } from "../../request-core/types"
+import { IdempotencyOptions, RequestIdempotencyOptions } from "./idempotency.types"
+
+type ERequestConfig = RequestConfig & { idempotencyOptions?: RequestIdempotencyOptions }
 
 /**
  * 创建幂等性插件
@@ -19,7 +21,7 @@ import { IdempotencyOptions } from "./idempotency.types"
  * @param options - 幂等性插件配置选项
  * @returns 配置好的幂等性插件实例，无额外方法扩展
  */
-export const useIdempotencyPlugin = (options: IdempotencyOptions = {}): RequestPlugin<undefined> => {
+export const useIdempotencyPlugin = (options: IdempotencyOptions = {}): RequestPlugin<ERequestConfig, undefined> => {
     // 解析配置参数，设置默认值
     const {
         headerName = 'Idempotency-Key',   // 默认请求头名称
@@ -27,7 +29,7 @@ export const useIdempotencyPlugin = (options: IdempotencyOptions = {}): RequestP
         dedupe = false,                   // 默认不启用前端去重
         expire = 5 * 1000                 // 默认幂等键有效期5秒
     } = options
-    
+
     /**
      * 存储正在处理中的幂等请求Map
      * 
@@ -42,7 +44,7 @@ export const useIdempotencyPlugin = (options: IdempotencyOptions = {}): RequestP
      * @param config - 请求配置对象
      * @returns 幂等键字符串
      */
-    const getIdempotentKey = (config: RequestConfig) => {
+    const getIdempotentKey = (config: ERequestConfig) => {
         if (config.idempotencyOptions?.idempotentKey) {
             return config.idempotencyOptions.idempotentKey
         }
@@ -51,8 +53,8 @@ export const useIdempotencyPlugin = (options: IdempotencyOptions = {}): RequestP
 
     // 返回幂等性插件对象
     return {
-        name: 'idempotency-plugin',
-        
+        name: Symbol('idempotency-plugin'),
+
         /**
          * 请求前钩子函数
          * 
@@ -61,17 +63,17 @@ export const useIdempotencyPlugin = (options: IdempotencyOptions = {}): RequestP
          * @param config - 请求配置对象
          * @returns 处理后的请求配置或已存在的Promise（前端去重时）
          */
-        beforeRequest<T>(config: RequestConfig) {
+        beforeRequest<T>(config: ERequestConfig) {
             // 如果未开启幂等请求，则不处理
             if (!config.idempotencyOptions?.idempotent) {
                 return config
             }
-            
+
             // 如果请求方法不属于修改类方法（POST、PUT、PATCH、DELETE），则不处理
             if (!config.method || !['POST', 'PUT', 'PATCH', 'DELETE'].includes(config.method.toUpperCase())) {
                 return config
             }
-            
+
             // 生成给后端请求的幂等键，并设置到请求头
             const key = getIdempotentKey(config)
             config.headers = {
@@ -91,7 +93,7 @@ export const useIdempotencyPlugin = (options: IdempotencyOptions = {}): RequestP
 
             return config
         },
-        
+
         /**
          * 响应后钩子函数
          * 
@@ -99,7 +101,7 @@ export const useIdempotencyPlugin = (options: IdempotencyOptions = {}): RequestP
          * @param response - 服务器响应对象
          * @returns 原始响应对象（不做修改）
          */
-        afterResponse(response: Response) {
+        afterResponse(response: Response<any, ERequestConfig>) {
             const { config } = response
             // 仅在请求启用幂等且开启了前端去重时才进行缓存
             if (config.idempotencyOptions?.idempotent && dedupe) {
@@ -114,7 +116,7 @@ export const useIdempotencyPlugin = (options: IdempotencyOptions = {}): RequestP
             }
             return response
         },
-        
+
         /**
          * 错误处理钩子函数
          * 
@@ -122,7 +124,7 @@ export const useIdempotencyPlugin = (options: IdempotencyOptions = {}): RequestP
          * @param error - 请求错误对象
          * @returns 原始错误对象（不做修改）
          */
-        onError(error: any) {
+        onError(error: RequestError<any, ERequestConfig>) {
             const key = error.config?.headers?.[headerName]
             // 如果错误的请求有关联的幂等键且开启了前端去重，则删除缓存
             if (key && dedupe) {
@@ -130,7 +132,7 @@ export const useIdempotencyPlugin = (options: IdempotencyOptions = {}): RequestP
             }
             return error
         },
-        
+
         /**
          * 插件扩展方法
          * 

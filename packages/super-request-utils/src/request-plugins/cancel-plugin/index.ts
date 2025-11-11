@@ -7,7 +7,9 @@
 
 import { RequestPlugin } from "../../request-core/interfaces"
 import { RequestConfig, Response } from "../../request-core/types"
-import { CancelOptions } from "./cancel.types"
+import { CancelOptions, RequestCancelOptions } from "./cancel.types"
+
+type ERequestConfig = RequestConfig & { cancelOptions: RequestCancelOptions }
 
 /**
  * 创建取消请求插件
@@ -19,17 +21,17 @@ import { CancelOptions } from "./cancel.types"
  * @param options - 插件配置选项
  * @returns 配置好的取消请求插件实例，包含取消请求的额外方法
  */
-export const useCancelPlugin = (options: CancelOptions = {}): RequestPlugin<{ cancel: (key: string) => void }> => {
+export const useCancelPlugin = (options: CancelOptions = {}): RequestPlugin<ERequestConfig, { cancel: (key: string) => void }> => {
     // 解析配置参数，设置默认值
     const { autoCancel = false } = options
-    
+
     /**
      * 存储待处理请求的Map
      * 
      * 键为请求标识，值为对应的AbortController实例
      */
     const pendingMap = new Map<string, AbortController>()
-    
+
     /**
      * 默认请求键生成函数
      * 
@@ -40,18 +42,18 @@ export const useCancelPlugin = (options: CancelOptions = {}): RequestPlugin<{ ca
     const defaultGetKey = (config: RequestConfig) => {
         return `${config.url}&${config.method || 'GET'}`
     }
-    
+
     /**
      * 最终使用的请求键生成函数
      * 
      * 优先使用用户自定义的getKey，否则使用默认实现
      */
     const getKey = options?.getKey || defaultGetKey
-    
+
     // 返回取消请求插件对象
     return {
-        name: 'cancel-plugin',
-        
+        name: Symbol('cancel-plugin'),
+
         /**
          * 请求前钩子函数
          * 
@@ -60,7 +62,7 @@ export const useCancelPlugin = (options: CancelOptions = {}): RequestPlugin<{ ca
          * @param config - 请求配置对象
          * @returns 处理后的请求配置
          */
-        beforeRequest<T>(config: RequestConfig) {
+        beforeRequest<T>(config: ERequestConfig) {
             // 如果禁用了取消功能，则直接返回原始配置
             if (!config.cancelOptions?.enableCancel) return config
 
@@ -72,16 +74,16 @@ export const useCancelPlugin = (options: CancelOptions = {}): RequestPlugin<{ ca
                 pendingMap.get(key)!.abort()
                 pendingMap.delete(key)
             }
-            
+
             // 创建新的取消控制器并设置到请求配置中
             const controller = new AbortController()
             config.cancelOptions._cancelController = controller
             config.signal = controller.signal
             pendingMap.set(key, controller)
-            
+
             return config
         },
-        
+
         /**
          * 响应后钩子函数
          * 
@@ -89,12 +91,12 @@ export const useCancelPlugin = (options: CancelOptions = {}): RequestPlugin<{ ca
          * @param response - 服务器响应对象
          * @returns 原始响应对象（不做修改）
          */
-        afterResponse(response: Response) {
+        afterResponse(response: Response<any, ERequestConfig>) {
             const key = getKey(response.config)
             pendingMap.delete(key)
             return response
         },
-        
+
         /**
          * 错误处理钩子函数
          * 
@@ -107,7 +109,7 @@ export const useCancelPlugin = (options: CancelOptions = {}): RequestPlugin<{ ca
             pendingMap.delete(key)
             return error
         },
-        
+
         /**
          * 插件扩展方法
          * 

@@ -1,3 +1,4 @@
+import { RequestCore } from "../core/RequestCore"
 import { RequestConfig, RequestError, Response } from "../types"
 
 /**
@@ -8,14 +9,14 @@ import { RequestConfig, RequestError, Response } from "../types"
  * 
  * @template K - 插件自定义结果的类型参数，默认为any
  */
-export interface RequestPlugin<K = any> {
+export interface RequestPlugin<EC extends RequestConfig = RequestConfig, R = any> {
     /**
      * 插件名称
      * 
      * 用于标识插件，建议使用唯一名称以便调试和日志记录
      */
-    name: string
-    
+    name: Symbol
+
     /**
      * 请求发送前的钩子函数
      * 
@@ -25,8 +26,8 @@ export interface RequestPlugin<K = any> {
      * @param {RequestConfig} config - 原始请求配置对象
      * @returns {Promise<RequestConfig|Response<T>>|RequestConfig|Response<T>} 返回修改后的配置或响应对象（实现短路逻辑）
      */
-    beforeRequest?: <T>(config: RequestConfig) => Promise<RequestConfig> | RequestConfig | Promise<Response<T>> | Response<T>
-    
+    beforeRequest?: <T>(config: EC, requestInstance: RequestCore<any>) => Promise<EC> | EC | Promise<Response<T, EC>> | Response<T, EC>
+
     /**
      * 响应返回后的钩子函数
      * 
@@ -36,8 +37,8 @@ export interface RequestPlugin<K = any> {
      * @param {Response} response - 原始响应对象
      * @returns {Promise<Response<T>>|Response<T>} 返回修改后的响应对象
      */
-    afterResponse?: <T>(response: Response) => Promise<Response<T>> | Response<T>
-    
+    afterResponse?: <T>(response: Response<any, EC>, requestInstance: RequestCore<any>) => Promise<Response<T, EC>> | Response<T, EC>
+
     /**
      * 错误处理钩子函数
      * 
@@ -46,12 +47,12 @@ export interface RequestPlugin<K = any> {
      * @param {RequestError} error - 请求错误对象
      * @returns {Promise<RequestError>|RequestError} 返回处理后的错误对象或包含response字段的对象（表示错误已被处理）
      */
-    onError?: (error: RequestError) => Promise<RequestError> | RequestError
-    
+    onError?: (error: RequestError<any, EC>, requestInstance: RequestCore<any>) => Promise<RequestError<any, EC>> | RequestError<any, EC>
+
     /**
      * 插件自定义返回值
      * 
      * 插件可以通过此属性存储和传递自定义数据，类型由泛型K指定
      */
-    result: K
+    result: R
 }

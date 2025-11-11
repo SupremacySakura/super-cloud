@@ -10,6 +10,8 @@ import { RequestPlugin } from "../../request-core/interfaces"
 import { RequestConfig, RequestError, Response } from "../../request-core/types"
 import { RetryOptions, RequestRetryOptions } from "./retry.types"
 
+type ERequestConfig = RequestConfig & { retryOptions?: RequestRetryOptions }
+
 /**
  * 创建重试插件
  * 
@@ -21,7 +23,7 @@ import { RetryOptions, RequestRetryOptions } from "./retry.types"
  * @param requestCore - 请求核心实例，用于执行重试请求
  * @returns 配置好的重试插件实例，无额外方法扩展
  */
-export const useRetryPlugin = (options: RetryOptions = {}, requestCore: RequestCore): RequestPlugin<undefined> => {
+export const useRetryPlugin = <C extends RequestConfig>(options: RetryOptions = {}): RequestPlugin<ERequestConfig, undefined> => {
     /**
      * 默认重试条件函数
      * 
@@ -69,7 +71,7 @@ export const useRetryPlugin = (options: RetryOptions = {}, requestCore: RequestC
     } = options
 
     return {
-        name: 'retry-plugin',
+        name: Symbol('retry-plugin'),
 
         /**
          * 请求前钩子函数
@@ -90,7 +92,7 @@ export const useRetryPlugin = (options: RetryOptions = {}, requestCore: RequestC
          * @param response - 服务器响应对象
          * @returns 原始响应对象
          */
-        afterResponse(response: Response) {
+        afterResponse(response: Response<any,ERequestConfig>) {
             return response
         },
 
@@ -101,7 +103,7 @@ export const useRetryPlugin = (options: RetryOptions = {}, requestCore: RequestC
          * @param error - 请求错误对象
          * @returns Promise<Error | Response> - 包含响应的错误对象（成功重试时）或被拒绝的Promise（不再重试时）
          */
-        async onError(error: RequestError) {
+        async onError(error: RequestError<any,ERequestConfig>, requestInstance: RequestCore<RequestConfig & { retryOptions?: RequestRetryOptions }>) {
             const config = error.config
 
             // 如果没有配置对象，无法重试，直接返回错误
@@ -130,14 +132,14 @@ export const useRetryPlugin = (options: RetryOptions = {}, requestCore: RequestC
                 const beforeRetry = config.retryOptions?.beforeRetry || globalBeforeRetry
                 const beforeRetryConfig = await beforeRetry(currentRetryCount, config)
                 // 创建带有更新重试计数的新配置
-                const newConfig: RequestConfig = {
+                const newConfig = {
                     ...config,
                     ...beforeRetryConfig,
                     retryOptions: {
                         ...requestRetryOptions,
                         __retryCount: currentRetryCount + 1
                     }
-                }
+                } as ERequestConfig
 
                 // 计算重试延迟
                 const delay = getDelay((newConfig.retryOptions as RequestRetryOptions)?.__retryCount || 0)
@@ -145,7 +147,7 @@ export const useRetryPlugin = (options: RetryOptions = {}, requestCore: RequestC
                 // 创建延迟执行的重试请求
                 const response: Response = await new Promise((resolve) => {
                     setTimeout(() => {
-                        resolve(requestCore.request(newConfig))
+                        resolve(requestInstance.request(newConfig))
                     }, delay)
                 })
 

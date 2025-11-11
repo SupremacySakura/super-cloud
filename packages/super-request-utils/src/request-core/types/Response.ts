@@ -8,39 +8,39 @@ import { RequestConfig } from "./RequestConfig"
  * 
  * @template T - 响应数据的类型参数，默认为any，表示服务器返回的数据结构
  */
-export interface Response<T = any> {
+export interface Response<T = any, C extends RequestConfig = RequestConfig> {
     /**
      * 响应数据
      * 
      * 服务器返回的主要数据内容，其类型由泛型参数T指定
      */
     data: T
-    
+
     /**
      * HTTP状态码
      * 
      * 表示请求的处理结果状态码，如200表示成功，4xx表示客户端错误，5xx表示服务器错误
      */
     status: number
-    
+
     /**
      * HTTP状态文本
      * 
      * 与状态码对应的描述文本，如"OK"、"Not Found"、"Internal Server Error"等
      */
     statusText: string
-    
+
     /**
      * 响应头信息
      * 
      * 服务器返回的HTTP响应头，包含内容类型、缓存控制、认证信息等元数据
      */
     headers: Record<string, string>
-    
+
     /**
      * 原始请求配置
      * 
      * 生成此响应的原始请求配置对象，包含URL、方法、请求头等完整信息，便于调试和请求重试
      */
-    config: RequestConfig
+    config: C
 }
