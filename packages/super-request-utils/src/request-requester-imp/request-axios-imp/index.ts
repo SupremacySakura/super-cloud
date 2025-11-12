@@ -20,20 +20,21 @@ export class AxiosRequester implements Requester {
      * 用于发送HTTP请求的Axios核心实例，配置了默认的请求行为
      */
     private axiosInstance: AxiosInstance
-    
+
     /**
      * 发送HTTP请求
      * 
      * 执行HTTP请求并返回响应结果，遵循统一的请求配置格式
      * 
      * @template T - 响应数据的类型参数，默认为any
+     * @template C - 请求配置的类型参数，默认为RequestConfig
      * @param config - 请求配置对象，包含URL、方法、头部、数据等信息
      * @returns Promise<Response<T>> - 包含响应数据、状态码、头部等信息的Promise对象
      */
-    request<T = any>(config: RequestConfig): Promise<Response<T>> {
+    request<T = any, C extends RequestConfig = RequestConfig>(config: C): Promise<Response<T, C>> {
         return this.axiosInstance.request(config)
     }
-    
+
     /**
      * 构造函数
      * 

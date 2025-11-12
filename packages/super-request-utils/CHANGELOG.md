@@ -1,5 +1,11 @@
 # @super-cloud/super-request-utils
 
+## 2.1.0
+
+### Minor Changes
+
+- 优化类型 完善注释
+
 ## 2.0.0
 
 ### Major Changes

@@ -21,11 +21,12 @@ export class FetchRequester implements Requester {
      * 遵循统一的请求配置格式和响应格式
      * 
      * @template T - 响应数据的类型参数，默认为any
+     * @template C - 请求配置的类型参数，默认为RequestConfig
      * @param config - 请求配置对象，包含URL、方法、头部、数据、凭据等信息
      * @returns Promise<Response<T>> - 包含响应数据、状态码、头部等信息的Promise对象
      * @throws 当请求失败或HTTP状态码不在成功范围内时抛出错误
      */
-    async request<T = any>(config: RequestConfig): Promise<Response<T>> {
+    async request<T = any, C extends RequestConfig = RequestConfig>(config: C): Promise<Response<T, C>> {
         // 解构请求配置，提取URL和凭据配置
         const { url, withCredentials, ...restConfig } = config
 
@@ -44,7 +45,7 @@ export class FetchRequester implements Requester {
                     config
                 }
             }
-            
+
             // 根据Content-Type自动选择合适的响应解析方式
             let data: any
             const contentType = res.headers.get("content-type")
@@ -82,7 +83,7 @@ export class FetchRequester implements Requester {
             throw error
         }
     }
-    
+
     /**
      * 构造函数
      * 

@@ -1,5 +1,12 @@
 # test
 
+## 0.1.7
+
+### Patch Changes
+
+- Updated dependencies
+  - @yxzq-super-cloud/super-request-utils@2.1.0
+
 ## 0.1.6
 
 ### Patch Changes
