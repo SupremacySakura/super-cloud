@@ -190,10 +190,9 @@ const handleRegister =async () => {
 
 <style scoped>
 .register-container {
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
     background-color: #f5f7fa;
     padding: 20px;
 }
@@ -205,6 +204,7 @@ const handleRegister =async () => {
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     padding: 30px;
+    overflow-y: auto;
 }
 
 .register-header {

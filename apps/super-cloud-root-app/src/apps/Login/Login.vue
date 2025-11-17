@@ -79,10 +79,12 @@ const handleLogin = async () => {
   align-items: center;
   background-color: #f5f7fa;
   padding: 20px;
+  overflow-y: scroll;
 }
 
 .login-card {
   width: 100%;
+  height: 90%;
   max-width: 400px;
   background: white;
   border-radius: 12px;

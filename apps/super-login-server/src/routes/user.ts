@@ -88,24 +88,28 @@ router.post('/register', async (ctx) => {
     if (verificationCode.code !== code) {
         ctx.body = ({ message: '验证码错误', code: 400 })
         return
-    } else if (Date.now() - verificationCode.expireTime > 10 * 60 * 1000) {
+    } else if (Date.now() - verificationCode.expires > 10 * 60 * 1000) {
         ctx.body = ({ message: '验证码已过期', code: 400 })
         return
     }
     // 检查用户名是否存在
-    const [users] = await pool.query<RowDataPacket[]>(getUserByUsername, [username]);
+    try {
+        const [users] = await pool.query<RowDataPacket[]>(getUserByUsername, [username])
+        if (users.length > 0) {
+            ctx.body = ({ message: '用户名已存在', code: 400 })
+            return
+        }
+        // 注册
+        const [res] = await pool.query(register, [username, password, email])
+        if (res) {
+            ctx.body = ({ message: '注册成功', code: 200 })
+        } else {
+            ctx.body = ({ message: '注册失败', code: 500 })
+        }
+    } catch (error) {
+        console.error('查询失败:', error)
+    }
 
-    if (users.length > 0) {
-        ctx.body = ({ message: '用户名已存在', code: 400 })
-        return
-    }
-    // 注册
-    const [res] = await pool.query(register, [username, password, email])
-    if (res) {
-        ctx.body = ({ message: '注册成功', code: 200 })
-    } else {
-        ctx.body = ({ message: '注册失败', code: 500 })
-    }
 })
 // 检验是否登录
 router.get('/check', async (ctx) => {

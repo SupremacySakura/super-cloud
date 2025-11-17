@@ -8,7 +8,6 @@ import { useUserStore } from '../stores/user';
 import { storeToRefs } from 'pinia';
 import { postLogout } from '../services/apis/login';
 import { ElMessage } from 'element-plus';
-import defaultAvatar from '../../public/avatar.png'
 const { userInfo, sid } = storeToRefs(useUserStore())
 const { setUserInfo, setSid } = useUserStore();
 const route = useRoute();
@@ -68,7 +67,7 @@ const handleLogout = async () => {
                 <button class="primary-button" @click="router.push('/login')">登录</button>
             </section>
             <section class="user-info" v-else>
-                <img :src="userInfo?.avatar || defaultAvatar" alt="">
+                <img :src="userInfo?.avatar || '../../public/avatar.png'" alt="">
                 <span>{{ userInfo?.username }}</span>
                 <button class="primary-button" @click="handleLogout()">登出</button>
             </section>
