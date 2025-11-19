@@ -8,10 +8,10 @@ const core = new UploadCore({
   concurrency: 3,  // 并发数量配置
 })
 const uploadBrowser = new UploadBrowser(core, {
-  uploadUrl: '/api/upload',  // 上传接口地址
-  checkFileUrl: '/api/upload/checkFile',  // 检查文件接口地址
-  readFileUrl: '/api/download',  // 获取文件地址
-  readFileNameUrl: '/api/upload/fileName',  // 获取文件名
+  uploadUrl: '/api/file/upload',  // 上传接口地址
+  checkFileUrl: '/api/file/check',  // 检查文件接口地址
+  readFileUrl: '/api/file/read',  // 获取文件地址
+  readFileNameUrl: '/api/file/name',  // 获取文件名
 })
 export default function Home() {
   const [progress, setProgress] = useState(0)
