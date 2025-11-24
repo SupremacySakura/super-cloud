@@ -1,89 +1,104 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import { ElMessage, ElSelect, ElOption, ElSwitch, ElInput, ElUpload } from 'element-plus';
-import type { Message, Model } from '../../../../types/ai';
-import { getModels, postMessage } from '../../../../services/apis/ai';
+import { ref, onMounted, onUnmounted, reactive } from 'vue'
+import { ElMessage, ElSelect, ElOption, ElSwitch, ElInput, ElUpload } from 'element-plus'
+import type { Message, Model } from '../../../../types/ai'
+import { getModels, postMessage, getHistory } from '../../../../services/apis/ai'
 // 消息列表
-const messages = ref<Message[]>([]);
+const messages = ref<Message[]>([])
 
 // 输入框内容
-const inputContent = ref('');
+const inputContent = ref('')
 
 // 加载状态
-const isLoading = ref(false);
+const isLoading = ref(false)
 
 // 模型选择
-const model = ref('');
-const models = ref<Model[]>([]);
+const model = ref('')
+const models = ref<Model[]>([])
 
-// 联网搜索开关
-const webSearch = ref(false);
+// TODO: 联网搜索开关 
+const webSearch = ref(false)
 
 // 发送消息
 const sendMessage = async () => {
     if (!inputContent.value.trim()) {
-        ElMessage.warning('请输入消息内容');
-        return;
+        ElMessage.warning('请输入消息内容')
+        return
     }
-
     // 添加用户消息
     const userMessage: Message = {
         id: Date.now(),
         role: 'user',
         content: inputContent.value,
         time: new Date().toISOString()
-    };
-    messages.value.push(userMessage);
-    inputContent.value = '';
-
+    }
+    messages.value.push(userMessage)
+    inputContent.value = ''
     // AI响应
-    isLoading.value = true;
+    isLoading.value = true
     try {
-        const res = await postMessage(messages.value, model.value);
-        // 添加AI响应
-        const aiMessage: Message = {
+        const aiMessage = reactive({
             id: Date.now() + 1,
             role: 'system',
-            content: res.data.data,
+            content: '',
             time: new Date().toISOString()
-        };
-        messages.value.push(aiMessage);
-
+        })
+        // 添加AI响应
+        await postMessage(messages.value, model.value, (data: string) => {
+            if (isLoading.value) {
+                messages.value.push(aiMessage)
+                isLoading.value = false
+            }
+            aiMessage.content += data
+        })
         // 滚动到底部
-        scrollToBottom();
+        scrollToBottom()
     } catch (error) {
-        ElMessage.error('发送消息失败，请稍后再试');
+        ElMessage.error('发送消息失败，请稍后再试')
     } finally {
-        isLoading.value = false;
+        isLoading.value = false
     }
-};
+}
 // 滚动到底部
 const scrollToBottom = () => {
-    const chatContainer = document.querySelector('.chat-messages');
+    const chatContainer = document.querySelector('.chat-messages')
     if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        chatContainer.scrollTop = chatContainer.scrollHeight
     }
-};
+}
 
 // 监听回车键
 const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
+        e.preventDefault()
+        sendMessage()
     }
-};
+}
+
+const initMessagesHistory = async () => {
+    try {
+        const res = await getHistory()
+        if (+res.data.code === 200) {
+            messages.value = res.data.data
+        }
+    } catch (error) {
+        ElMessage.error('获取历史消息失败，请稍后再试')
+    }
+}
 
 // 页面加载完成后滚动到底部
 onMounted(async () => {
-    scrollToBottom();
-    window.addEventListener('keydown', handleKeyPress);
-    const res = await getModels();
+    initMessagesHistory()
+    scrollToBottom()
+    window.addEventListener('keydown', handleKeyPress)
+    const res = await getModels()
     models.value = res.data.data
     model.value = models.value[0].value
-});
+})
+
 onUnmounted(() => {
-    window.removeEventListener('keydown', handleKeyPress);
-});
+    window.removeEventListener('keydown', handleKeyPress)
+})
 </script>
 
 <template>
@@ -114,7 +129,7 @@ onUnmounted(() => {
                 </div>
                 <div class="message-content">
                     <div class="message-text">{{ message.content }}</div>
-                    <div :class="['message-time',message.role]">{{ new Date(message.time).toLocaleTimeString() }}</div>
+                    <div :class="['message-time', message.role]">{{ new Date(message.time).toLocaleTimeString() }}</div>
                 </div>
             </div>
             <div v-if="isLoading" class="loading-indicator">
@@ -273,6 +288,7 @@ onUnmounted(() => {
                     color: @text-secondary;
                     align-self: flex-end;
                     margin-top: 4px;
+
                     &.system {
                         align-self: flex-start;
                     }

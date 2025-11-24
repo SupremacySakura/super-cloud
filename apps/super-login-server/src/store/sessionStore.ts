@@ -6,14 +6,14 @@ const insertSession = `
     INSERT INTO user_sessions (
       sid, user_id, username, email, avatar, status, created_at, updated_at
     ) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
-  `;
+  `
 const querySession = `
     SELECT * FROM user_sessions WHERE sid = ? LIMIT 1
-  `;
+  `
 const deleteSessionSql = 'DELETE FROM user_sessions WHERE sid = ?'
 export const createSession = async (userInfo: UserInfo): Promise<string> => {
-    const sid = crypto.randomUUID();
-    sessionMap.set(sid, userInfo);
+    const sid = crypto.randomUUID()
+    sessionMap.set(sid, userInfo)
 
     try {
         const [result] = await pool.query(insertSession, [
@@ -25,20 +25,20 @@ export const createSession = async (userInfo: UserInfo): Promise<string> => {
             userInfo.status,
             userInfo.created_at,
             userInfo.updated_at
-        ]);
+        ])
 
-        const { affectedRows } = result as any;
+        const { affectedRows } = result as any
         if (affectedRows === 0) {
-            sessionMap.delete(sid);
-            return '';
+            sessionMap.delete(sid)
+            return ''
         }
 
-        return sid;
+        return sid
     } catch {
-        sessionMap.delete(sid);
-        return '';
+        sessionMap.delete(sid)
+        return ''
     }
-};
+}
 
 export const getSession = async (sid: string): Promise<UserInfo | null | false> => {
     const session = sessionMap.get(sid)

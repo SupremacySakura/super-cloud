@@ -1,125 +1,125 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { postSendVerificationCode, postRegister } from '../../services/apis/login';
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { postSendVerificationCode, postRegister } from '../../services/apis/login'
 import { ElMessage } from 'element-plus'
-const username = ref('');
-const email = ref('');
-const password = ref('');
-const confirmPassword = ref('');
-const verificationCode = ref(''); // 验证码
-const codeButtonText = ref('获取验证码');
-const isCodeButtonDisabled = ref(false);
-const countdown = ref(60);
-const agreeTerms = ref(false);
-const errorMessage = ref('');
-const successMessage = ref('');
-const router = useRouter();
+const username = ref('')
+const email = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+const verificationCode = ref('') // 验证码
+const codeButtonText = ref('获取验证码')
+const isCodeButtonDisabled = ref(false)
+const countdown = ref(60)
+const agreeTerms = ref(false)
+const errorMessage = ref('')
+const successMessage = ref('')
+const router = useRouter()
 
 // 密码强度检查
 const passwordStrength = computed(() => {
-    if (password.value.length < 6) return '弱';
-    if (password.value.length < 10) return '中';
-    return '强';
-});
+    if (password.value.length < 6) return '弱'
+    if (password.value.length < 10) return '中'
+    return '强'
+})
 
 const passwordStrengthClass = computed(() => {
     switch (passwordStrength.value) {
-        case '弱': return 'password-strength weak';
-        case '中': return 'password-strength medium';
-        case '强': return 'password-strength strong';
-        default: return 'password-strength';
+        case '弱': return 'password-strength weak'
+        case '中': return 'password-strength medium'
+        case '强': return 'password-strength strong'
+        default: return 'password-strength'
     }
-});
+})
 
 /**
  * 获取验证码
  */
 const getVerificationCode = async() => {
     if (!email.value) {
-        errorMessage.value = '请先输入电子邮箱';
-        return;
+        errorMessage.value = '请先输入电子邮箱'
+        return
     }
 
     // 简单的邮箱格式验证
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email.value)) {
-        errorMessage.value = '请输入有效的电子邮箱';
-        return;
+        errorMessage.value = '请输入有效的电子邮箱'
+        return
     }
 
     // 发送验证码
 
-    errorMessage.value = '';
-    isCodeButtonDisabled.value = true;
-    codeButtonText.value = `重新发送(${countdown.value})`;
+    errorMessage.value = ''
+    isCodeButtonDisabled.value = true
+    codeButtonText.value = `重新发送(${countdown.value})`
 
     const timer = setInterval(() => {
-        countdown.value--;
-        codeButtonText.value = `重新发送(${countdown.value})`;
+        countdown.value--
+        codeButtonText.value = `重新发送(${countdown.value})`
 
         if (countdown.value <= 0) {
-            clearInterval(timer);
-            isCodeButtonDisabled.value = false;
-            codeButtonText.value = '获取验证码';
-            countdown.value = 60;
+            clearInterval(timer)
+            isCodeButtonDisabled.value = false
+            codeButtonText.value = '获取验证码'
+            countdown.value = 60
         }
-    }, 1000);
+    }, 1000)
 
     // 调用发送验证码的API
     try{
         const res = await postSendVerificationCode(email.value)
         console.log(res)
         if (+res.data.code === 200){
-            ElMessage.success('验证码发送成功');
+            ElMessage.success('验证码发送成功')
         }else{
-            ElMessage.error(res.data.message);
+            ElMessage.error(res.data.message)
         }
     }catch(err){
-        ElMessage.error(`验证码发送失败: ${err}`);
+        ElMessage.error(`验证码发送失败: ${err}`)
     }
    
-};
+}
 /**
  * 注册
  */
 const handleRegister =async () => {
     // 表单验证
     if (!username.value || !email.value || !password.value || !confirmPassword.value || !verificationCode.value) {
-        errorMessage.value = '所有字段都是必填项';
-        successMessage.value = '';
-        return;
+        errorMessage.value = '所有字段都是必填项'
+        successMessage.value = ''
+        return
     }
 
     if (password.value !== confirmPassword.value) {
-        errorMessage.value = '两次输入的密码不一致';
-        successMessage.value = '';
-        return;
+        errorMessage.value = '两次输入的密码不一致'
+        successMessage.value = ''
+        return
     }
 
     if (!agreeTerms.value) {
-        errorMessage.value = '请同意服务条款和隐私政策';
-        successMessage.value = '';
-        return;
+        errorMessage.value = '请同意服务条款和隐私政策'
+        successMessage.value = ''
+        return
     }
 
     // 这里添加实际注册逻辑
     try{
         const res = await postRegister(username.value, password.value, email.value, verificationCode.value)
         if (+res.data.code === 200){
-            ElMessage.success('注册成功！');
-            successMessage.value = '注册成功！即将跳转到登录页面...';
+            ElMessage.success('注册成功！')
+            successMessage.value = '注册成功！即将跳转到登录页面...'
             // 2秒后跳转到登录页面
             setTimeout(() => {
-                router.push('/login');
-            }, 2000);
+                router.push('/login')
+            }, 2000)
         }else{
-            ElMessage.error(res.data.message);
+            ElMessage.error(res.data.message)
         }
     }catch(err){
-        ElMessage.error(`注册失败: ${err}`);
+        ElMessage.error(`注册失败: ${err}`)
     }
-};
+}
 </script>
 
 <template>

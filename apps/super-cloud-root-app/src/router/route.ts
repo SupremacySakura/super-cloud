@@ -1,7 +1,7 @@
-import type { RouteRecordRaw } from "vue-router";
-import { resourceRoutes } from "../apps/ResourceStorage/route";
-import { AIRoutes } from "../apps/FreeAIHub/route";
-import type { NavItem } from "../types/router";
+import type { RouteRecordRaw } from "vue-router"
+import { resourceRoutes } from "../apps/ResourceStorage/route"
+import { AIRoutes } from "../apps/FreeAIHub/route"
+import type { NavItem } from "../types/router"
 import MainView from '../layouts/Main.vue'
 const routes: RouteRecordRaw[] = [
     {

@@ -4,11 +4,11 @@ import router from './routes'
 import cors from '@koa/cors'
 import bodyParser from 'koa-bodyparser'
 import { requestLogger, responseLogger } from './middleware/logger'
-import path from 'path';
-import serve from 'koa-static';
-import mount from 'koa-mount';
+import path from 'path'
+import serve from 'koa-static'
+import mount from 'koa-mount'
 import { STATIC_PREFIX } from './config'
-const publicDir = path.resolve(__dirname, './files');
+const publicDir = path.resolve(__dirname, './files')
 const app = new Koa()
 app.use(cors({
     origin: '*', // 允许所有来源，也可以设置为特定域名如 'http://localhost:5173'
@@ -20,7 +20,7 @@ app.use(cors({
 app.use(bodyParser())
 app.use(requestLogger)
 app.use(responseLogger)
-app.use(mount(STATIC_PREFIX, serve(publicDir)));
+app.use(mount(STATIC_PREFIX, serve(publicDir)))
 app.use(router.routes())
 app.use(router.allowedMethods())
 const PORT = Number(process.env.PORT) || 3000

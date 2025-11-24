@@ -1,50 +1,50 @@
-import Router from '@koa/router';
-import fs from 'fs-extra';
-import path from 'path';
-import { readDirRecursive } from '../utils';
-import { randomUUID } from 'crypto';
-import { FileItem, ImageItem } from '../types/file';
-import koaBody from 'koa-body';
-import { glob } from 'glob';
-import { authMiddleware } from '../middleware/checkLogin';
+import Router from '@koa/router'
+import fs from 'fs-extra'
+import path from 'path'
+import { readDirRecursive } from '../utils'
+import { randomUUID } from 'crypto'
+import { FileItem, ImageItem } from '../types/file'
+import koaBody from 'koa-body'
+import { glob } from 'glob'
+import { authMiddleware } from '../middleware/checkLogin'
 // 文件根目录
-const ROOT_DIR = path.resolve(__dirname, '../files');
+const ROOT_DIR = path.resolve(__dirname, '../files')
 const checkApiUrl = 'http://localhost:3001/api/super-login/user/check'
 const router = new Router({
     prefix: '/file' // 所有 user 路由都会带上这个前缀
 })
 // 获取用户有权限访问的文件结构
-router.get('/',authMiddleware(checkApiUrl), async (ctx) => {
-    const user = ctx.query.username as string;
+router.get('/', authMiddleware(checkApiUrl), async (ctx) => {
+    const user = ctx.query.username as string
     if (!user) {
-        ctx.body = { message: 'Missing user parameter', code: 400 };
-        return;
+        ctx.body = { message: 'Missing user parameter', code: 400 }
+        return
     }
 
-    const allowedDirs = ['public', user]; // 可扩展添加更多权限规则
+    const allowedDirs = ['public', user] // 可扩展添加更多权限规则
 
-    const fileTree: FileItem[] = [];
-    const protocol = ctx.protocol;
-    const host = ctx.host;
-    const fullHost = `${protocol}://${host}`;
+    const fileTree: FileItem[] = []
+    const protocol = ctx.protocol
+    const host = ctx.host
+    const fullHost = `${protocol}://${host}`
     for (const dir of allowedDirs) {
-        const dirPath = path.join(ROOT_DIR, dir);
+        const dirPath = path.join(ROOT_DIR, dir)
         if (!(await fs.pathExists(dirPath))) {
-            await fs.mkdir(dirPath, { recursive: true }); // 递归创建目录
+            await fs.mkdir(dirPath, { recursive: true }) // 递归创建目录
         }
-        const children = await readDirRecursive(ROOT_DIR, dir, fullHost);
+        const children = await readDirRecursive(ROOT_DIR, dir, fullHost)
         fileTree.push({
             id: randomUUID(),
             name: dir,
             type: 'folder',
             path: '/' + dir,
             children,
-        });
+        })
 
     }
 
-    ctx.body = { message: '文件列表获取成功', code: 200, data: fileTree };
-});
+    ctx.body = { message: '文件列表获取成功', code: 200, data: fileTree }
+})
 // 获取文件内容
 router.get('/read', authMiddleware(checkApiUrl), async (ctx) => {
     const queryPath = ctx.query.filePath as string
@@ -54,8 +54,8 @@ router.get('/read', authMiddleware(checkApiUrl), async (ctx) => {
         return
     }
     // 安全地构造绝对路径（假设根目录为 ./files）
-    const safeQueryPath = queryPath.replace(/^\/+/, '');
-    const filePath = path.join(ROOT_DIR, safeQueryPath);
+    const safeQueryPath = queryPath.replace(/^\/+/, '')
+    const filePath = path.join(ROOT_DIR, safeQueryPath)
     try {
         // 判断是否存在
         const exists = await fs.pathExists(filePath)

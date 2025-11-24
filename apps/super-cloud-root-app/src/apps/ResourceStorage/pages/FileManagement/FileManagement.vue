@@ -1,46 +1,46 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { Document, Folder } from '@element-plus/icons-vue';
-import type { FileItem } from '../../../../types/files';
-import { getAllFiles, getFileContent, uploadFile } from '../../../../services/apis/resourceStorage';
-import { useUserStore } from '../../../../stores/user';
-import { storeToRefs } from 'pinia';
-import { ElMessage } from 'element-plus';
+import { ref, onMounted } from 'vue'
+import { Document, Folder } from '@element-plus/icons-vue'
+import type { FileItem } from '../../../../types/files'
+import { getAllFiles, getFileContent, uploadFile } from '../../../../services/apis/resourceStorage'
+import { useUserStore } from '../../../../stores/user'
+import { storeToRefs } from 'pinia'
+import { ElMessage } from 'element-plus'
 import { formatSize, formatTime } from '../../../../utils'
-const { userInfo } = storeToRefs(useUserStore());
+const { userInfo } = storeToRefs(useUserStore())
 // 文件树数据（假设由父组件传入或后端加载）
-const fileTree = ref<FileItem[]>([]);
+const fileTree = ref<FileItem[]>([])
 // 当前选中文件内容
-const content = ref('');
+const content = ref('')
 // 文件加载状态
-const loading = ref(false);
+const loading = ref(false)
 // 用于展示详细信息
-const selectedFile = ref<FileItem | null>(null);
+const selectedFile = ref<FileItem | null>(null)
 // tree 配置
 const treeProps = {
     children: 'children',
     label: 'name',
-};
+}
 const fileList = ref<File[]>([])
 /**
  * 文件点击事件处理函数
  */
 const onFileClick = async (node: FileItem) => {
-    selectedFile.value = node;
+    selectedFile.value = node
     if (node.type === 'file') {
-        loading.value = true;
+        loading.value = true
         try {
-            const res = await getFileContent(node.path);
+            const res = await getFileContent(node.path)
             content.value = res.data.data
         } catch (e) {
-            content.value = '读取文件失败';
+            content.value = '读取文件失败'
         } finally {
-            loading.value = false;
+            loading.value = false
         }
     } else {
-        content.value = '';
+        content.value = ''
     }
-};
+}
 
 // 判断是否是图片类型（根据文件后缀）
 const isImage = (name: string): boolean => {
@@ -61,7 +61,7 @@ const refreshFileTree = async () => {
             }
         }
     } catch (err) {
-        ElMessage.error(`获取文件列表失败: ${err}`);
+        ElMessage.error(`获取文件列表失败: ${err}`)
     }
 }
 /**

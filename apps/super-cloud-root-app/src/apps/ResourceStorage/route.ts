@@ -1,6 +1,6 @@
-import type { RouteRecordRaw } from "vue-router";
-import type { NavItem } from "../../types/router";
-import { getSideBarListFromRoutes } from "../../utils/router";
+import type { RouteRecordRaw } from "vue-router"
+import type { NavItem } from "../../types/router"
+import { getSideBarListFromRoutes } from "../../utils/router"
 /**
  * 资源管理路由
  */

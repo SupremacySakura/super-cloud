@@ -57,7 +57,7 @@ router.post('/sendVerificationCode', async (ctx) => {
 // 登录
 router.post('/login', async (ctx) => {
     const { username, password } = ctx.request.body as UserLogin
-    const [users] = await pool.query<RowDataPacket[]>(getUserByUsername, [username]);
+    const [users] = await pool.query<RowDataPacket[]>(getUserByUsername, [username])
     if (users.length === 0) {
         ctx.body = ({ message: '用户不存在', code: 404 })
         return

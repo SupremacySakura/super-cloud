@@ -1,1 +1,1 @@
-export const STATIC_PREFIX = '/resource'; // koa-static 的前缀
+export const STATIC_PREFIX = '/resource' // koa-static 的前缀

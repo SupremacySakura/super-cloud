@@ -1,37 +1,37 @@
 <script setup lang="ts">
 import { Fold } from '@element-plus/icons-vue'
-import { computed, ref } from 'vue';
-import cloudSvg from '../assets/cloud.svg';
-import { rootNavBar } from '../router/route';
-import { useRoute, useRouter } from 'vue-router';
-import { useUserStore } from '../stores/user';
-import { storeToRefs } from 'pinia';
-import { postLogout } from '../services/apis/login';
-import { ElMessage } from 'element-plus';
+import { computed, ref } from 'vue'
+import cloudSvg from '../assets/cloud.svg'
+import { rootNavBar } from '../router/route'
+import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '../stores/user'
+import { storeToRefs } from 'pinia'
+import { postLogout } from '../services/apis/login'
+import { ElMessage } from 'element-plus'
 const { userInfo, sid } = storeToRefs(useUserStore())
-const { setUserInfo, setSid } = useUserStore();
-const route = useRoute();
-const router = useRouter();
+const { setUserInfo, setSid } = useUserStore()
+const route = useRoute()
+const router = useRouter()
 // 侧边栏
-const drawerOpen = ref(false);
+const drawerOpen = ref(false)
 // 登录状态
 const isLogin = computed(() => {
-    return sid.value && userInfo.value;
-});
+    return sid.value && userInfo.value
+})
 /**
  * 切换侧边栏
  */
 const handleToggleDrawer = () => {
-    drawerOpen.value = !drawerOpen.value;
-};
+    drawerOpen.value = !drawerOpen.value
+}
 /**
  * 登出
  */
 const handleLogout = async () => {
     try {
-        const res = await postLogout();
+        const res = await postLogout()
         if (res.data.code === 200) {
-            ElMessage.success('登出成功');
+            ElMessage.success('登出成功')
         } else {
 
             ElMessage.error(`登出失败,强制登出: ${res.data.message}`)
@@ -39,10 +39,10 @@ const handleLogout = async () => {
     } catch (err) {
         ElMessage.error(`登出失败,强制登出: ${err}`)
     } finally {
-        setUserInfo(null);
-        setSid('');
+        setUserInfo(null)
+        setSid('')
     }
-};
+}
 </script>
 
 <template>

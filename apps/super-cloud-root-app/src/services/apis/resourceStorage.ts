@@ -1,4 +1,4 @@
-import { rootRequest } from "../request";
+import { rootRequest } from "../request"
 import type { ApiResponse } from '../../types/api'
 import type { FileItem, ImageItem } from '../../types/files'
 import type { AxiosResponse } from 'axios'

@@ -1,35 +1,35 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus';
-import { postLogin } from '../../services/apis/login';
-const username = ref('');
-const password = ref('');
-const rememberMe = ref(false);
-const errorMessage = ref('');
-const router = useRouter();
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { postLogin } from '../../services/apis/login'
+const username = ref('')
+const password = ref('')
+const rememberMe = ref(false)
+const errorMessage = ref('')
+const router = useRouter()
 
 const handleLogin = async () => {
   // 简单表单验证
   if (!username.value || !password.value) {
-    errorMessage.value = '用户名和密码不能为空';
-    return;
+    errorMessage.value = '用户名和密码不能为空'
+    return
   }
 
   // 登录
   try {
-    const res = await postLogin(username.value, password.value);
+    const res = await postLogin(username.value, password.value)
     if (+res.data.code === 200) {
       console.log(res.data)
-      router.push('/');
-      ElMessage.success('登录成功');
+      router.push('/')
+      ElMessage.success('登录成功')
     } else {
-      ElMessage.error(res.data.message);
+      ElMessage.error(res.data.message)
     }
   } catch (err) {
-    ElMessage.error(`登录失败: ${err}`);
+    ElMessage.error(`登录失败: ${err}`)
   }
-};
+}
 </script>
 
 <template>

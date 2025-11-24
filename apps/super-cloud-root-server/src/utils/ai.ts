@@ -1,4 +1,5 @@
-import OpenAI from "openai";
+import OpenAI from "openai"
+import { Message } from "../types/ai"
 // 通义千问 - qwen-plus
 const openai_tongyi_qwen_plus = new OpenAI(
     {
@@ -6,14 +7,20 @@ const openai_tongyi_qwen_plus = new OpenAI(
         apiKey: process.env.TONGYI_API_KEY,
         baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1"
     }
-);
+)
 const chatWithTongYi = (model: string) => {
-    return async (messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]) => {
-        const completion = await openai_tongyi_qwen_plus.chat.completions.create({
+    return async (messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[], onData: (delta: string) => void) => {
+        const stream = await openai_tongyi_qwen_plus.chat.completions.create({
             model,  //可按需更换模型名称。模型列表：https://help.aliyun.com/zh/model-studio/getting-started/models
             messages,
-        });
-        return completion.choices[0].message.content
+            stream: true
+        })
+        for await (const chunk of stream) {
+            const delta = chunk.choices[0].delta.content
+            if (delta) {
+                onData(delta)
+            }
+        }
     }
 }
 // 模型枚举
@@ -36,6 +43,14 @@ const models = [
     { value: Model.qwen_turbo, label: 'qwen_turbo' },
     { value: Model.qwen_plus_latest, label: 'qwen_plus_latest' },
     { value: Model.qwen_turbo_latest, label: 'qwen_turbo_latest' },
-];
-export { modelMap,models }
-export { Model }
+]
+
+// 拼接历史消息与新消息
+const buildMessageWithHistory = (history: Message[], newMessage: Message) => {
+    const fullMessage = [...history, newMessage] as OpenAI.Chat.Completions.ChatCompletionMessageParam[]
+    if (fullMessage.length > 20) {
+        return fullMessage.slice(fullMessage.length - 20)
+    }
+    return fullMessage
+}
+export { modelMap, models, buildMessageWithHistory, Model }

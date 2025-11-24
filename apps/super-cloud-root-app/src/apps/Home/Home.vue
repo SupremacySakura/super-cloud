@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useUserStore } from '../../stores/user';
-import { storeToRefs } from 'pinia';
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '../../stores/user'
+import { storeToRefs } from 'pinia'
 
 // 状态管理
-const router = useRouter();
-const { userInfo } = storeToRefs(useUserStore());
-const isLogin = computed(() => !!userInfo.value);
+const router = useRouter()
+const { userInfo } = storeToRefs(useUserStore())
+const isLogin = computed(() => !!userInfo.value)
 
 </script>
 <template>

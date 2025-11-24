@@ -1,5 +1,5 @@
-import type { RouteRecordRaw } from "vue-router";
-import type { NavItem } from "../types/router";
+import type { RouteRecordRaw } from "vue-router"
+import type { NavItem } from "../types/router"
 
 export const getSideBarListFromRoutes = (routes: RouteRecordRaw[]) => {
 
